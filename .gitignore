@@ -128,5 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# personal test files
-junk/
+.vscode
