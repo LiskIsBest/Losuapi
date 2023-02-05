@@ -1,13 +1,7 @@
-from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Optional
-
-class GameMode(str, Enum):
-    OSU = "osu"
-    MANIA = "mania"
-    FRUITS = "fruits"
-    TAIKO = "taiko"
+from .enums import GameMode
 
 class Covers(BaseModel):
     cover: str
@@ -129,3 +123,40 @@ class Beatmap(BeatmapCompact):
         json_encoders = {
                 datetime: str,
                 }
+
+# TODO make Score model
+class Score(BaseModel):
+    ...
+	
+# TODO make UserGroup model https://osu.ppy.sh/docs/index.html#usergroup
+class UserGroup(BaseModel):
+    ...
+    
+# TODO make UserAccountHistory model https://osu.ppy.sh/docs/index.html#usercompact-useraccounthistory
+class UserAccountHistory(BaseModel):
+    ...
+    
+# TODO make UserBadge model https://osu.ppy.sh/docs/index.html#usercompact-userbadge
+class UserBadge(BaseModel):
+    ...
+
+# TODO make ProfileBanner model https://osu.ppy.sh/docs/index.html#usercompact-profilebanner
+class ProfileBanner(BaseModel):
+    ...
+    
+# TODO make RankHighest model https://osu.ppy.sh/docs/index.html#usercompact-rankhighest
+class RankHighest(BaseModel):
+    ...
+    
+# https://osu.ppy.sh/docs/index.html#beatmapuserscore
+class BeatmapUserScore(BaseModel):
+    position: int
+    score: Score
+    
+# https://osu.ppy.sh/docs/index.html#beatmapscores
+class BeatmapScores(BaseModel):
+    scores: list[Score]
+    userScore: Optional[BeatmapUserScore]
+    
+
+    
