@@ -7,19 +7,6 @@ Extremely work in progress
 
 ---
 
-# Basic usage
-
-example:
-``` python
-import losuapi
-
-# instantiate OsuApi object
-api = losuapi.OsuApi(client_it=CLIENT_ID, cleint_secret=CLIENT_SECRET)
-
-# lookup_beatmap method returns a losu.Beatmap object
-beatmap: losuapi.Beatmap = api.lookup_beatmap(beatmap_id=1920615)
-```
-
 ## Setup
 
 - Register an Oauth application on the osu [account settings page](https://osu.ppy.sh/home/account/edit#new-oauth-application).
@@ -38,4 +25,17 @@ import os
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+```
+
+## Basic usage
+
+example:
+``` python
+import losuapi
+
+# instantiate OsuApi object
+api = losuapi.OsuApi(client_id=CLIENT_ID, cleint_secret=CLIENT_SECRET)
+
+# lookup_beatmap method returns a losu.Beatmap object
+beatmap: losuapi.Beatmap = api.lookup_beatmap(beatmap_id=1920615)
 ```
