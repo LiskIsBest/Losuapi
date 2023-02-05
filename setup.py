@@ -10,6 +10,7 @@ setup(
     version=VERSION,
     description="Python wrapper for the Osu apiv2.",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     keywords=["python","osu","api","wrapper"],
     author="Darien Moore",
     author_email="LiskIsBest@gmail.com",
