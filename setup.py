@@ -1,5 +1,4 @@
-from distutils.core import setup
-from setuptools import find_packages
+from setuptools import find_packages, setup
 
 with open("README.md", "r") as readme:
     long_description = readme.read()
@@ -18,4 +17,8 @@ setup(
     download_url="https://github.com/LiskIsBest/Losuapi/tarball/main",
     license="GPLv3",
     packages=find_packages(),
+    install_requires=[
+		"requests",
+        "pydantic"
+	]
 )
