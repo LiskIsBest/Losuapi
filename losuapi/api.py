@@ -1,6 +1,5 @@
 import requests
-from .models import Beatmap
-from .enums import GameMode
+from .types import Beatmap, Rankings, User, Scores, GameMode
 from pydantic import parse_obj_as
 
 BASE_URL = "https://osu.ppy.sh/api/v2"
@@ -17,6 +16,7 @@ class OsuApi:
         self.token_type, self.access_token = self.__get_auth()
         self.authorization = self.token_type+" "+self.access_token
 
+    # https://osu.ppy.sh/docs/index.html#client-credentials-grant
     def __get_auth(self):
         body_params = {
             "client_id" : self.client_id,
@@ -28,6 +28,7 @@ class OsuApi:
         response = requests.post(url=TOKEN_URL, json=body_params, headers=self.base_headers).json()
         return response["token_type"], response["access_token"]
 
+    # https://osu.ppy.sh/docs/index.html#lookup-beatmap
     def lookup_beatmap(self, beatmap_id:int|str, checksum:str="", filename:str="") -> Beatmap:
         if type(beatmap_id) == int:
             beatmap_id = str(beatmap_id)
@@ -72,6 +73,7 @@ class OsuApi:
     def user_kudosu(self):
         raise Exception("user_kudosu not implemented")
     
+    # TODO change return to pydantic model
     def user_scores(self, 
                     user_id:int, 
                     type:str, 
@@ -79,6 +81,8 @@ class OsuApi:
                     mode:str=None,
                     limit:int=None,
                     offset:int=None):
+        raise Exception("user_scores not implemented")
+        #!
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
@@ -98,8 +102,8 @@ class OsuApi:
             query_params["offset"] = offset
 
         response = requests.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
-        return response.json()
-    
+        return parse_obj_as(type_=Scores, obj=response.json())
+                
     # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
     def user_beatmaps(self):
         raise Exception("user_beatmaps not implemented.")
@@ -108,7 +112,7 @@ class OsuApi:
     def user_recent_activity(self):
         raise Exception("user_recent_activity not implemented.")
     
-    # TODO make user request https://osu.ppy.sh/docs/index.html#get-user
+    # https://osu.ppy.sh/docs/index.html#get-user
     def user(self,
             username:int|str,
             mode:str="",
@@ -124,15 +128,30 @@ class OsuApi:
             query_params["key"] = key
 
         response = requests.get(url=BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
-        return response.json()
+        return parse_obj_as(type_=User, obj=response.json())
 
     # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
     def users(self):
         raise Exception("users not implemented")
 
-    # TODO make ranking request https://osu.ppy.sh/docs/index.html#get-ranking
-    def ranking(self):
-        raise Exception("ranking not implemented.")
+    # TODO finish ranking request https://osu.ppy.sh/docs/index.html#get-ranking
+    def ranking(self,
+                mode:str,
+                type:str,
+                country:int=None,
+                cursor:str=None,
+                filter:str=None,
+                spotlight:str=None,
+                variant:str=None,):
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        
+        query_params = {}
+        
+        # ! unfinished
+
+        response = requests.get(url=BASE_URL+f"/rankings/{mode}/{type}", headers=headers)
+        return parse_obj_as(type_=Rankings, obj=response.json())
     
     # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
     def spotlights(self):
