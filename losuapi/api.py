@@ -90,15 +90,50 @@ class OsuApi:
             query_params["include_fails"] = 1
         elif include_fails < 0:
             raise ValueError("include_fails must be greater than -1")
-
-        if mode in GameMode.__members__.values():
+        if mode != None and mode in GameMode.__members__.values():
             query_params["mode"] = mode
-
         if limit != None and isinstance(limit, int):
             query_params["limit"] = limit
-
         if offset!= None and isinstance(offset, int):
             query_params["offset"] = offset
 
         response = requests.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
         return response.json()
+    
+    # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
+    def user_beatmaps(self):
+        raise Exception("user_beatmaps not implemented.")
+    
+    # TODO make user_recent_activity request https://osu.ppy.sh/docs/index.html#get-user-recent-activity
+    def user_recent_activity(self):
+        raise Exception("user_recent_activity not implemented.")
+    
+    # TODO make user request https://osu.ppy.sh/docs/index.html#get-user
+    def user(self,
+            username:int|str,
+            mode:str="",
+            key:str=None):
+        
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+
+        query_params = {}
+        if mode != "" and mode not in GameMode.__members__.values():
+            raise ValueError(f"value:{mode} not valid.")
+        if key != None and isinstance(key,str):
+            query_params["key"] = key
+
+        response = requests.get(url=BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
+        return response.json()
+
+    # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
+    def users(self):
+        raise Exception("users not implemented")
+
+    # TODO make ranking request https://osu.ppy.sh/docs/index.html#get-ranking
+    def ranking(self):
+        raise Exception("ranking not implemented.")
+    
+    # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
+    def spotlights(self):
+        raise Exception("spotlights not implemented.")
