@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import Optional
-from .enums import GameMode, UserAcountHistoryTypes
+from typing import Optional, Any
+from .enums import GameMode, UserAcountHistoryTypes, UserListFilters, UserListSorts, UserListViews, BeatmapsetDownload
 
 class Covers(BaseModel):
     cover: str
@@ -67,7 +67,7 @@ class Beatmapset(BeatmapsetCompact):
     legacy_thread_url: Optional[str] = None
     nominations: Nominations = Field(alias="nominations_summary")
     ranked: int
-    ranked_date = Optional[datetime] = None
+    ranked_date: Optional[datetime] = None
     source: str
     storyboard: bool
     submitted_date: Optional[datetime] = None
@@ -242,11 +242,37 @@ class ReplaysWatchedCount(BaseModel):
     start_date: str
     count: int
 
+class GradeCounts(BaseModel):
+    a:int
+    s:int
+    sh:int
+    ss:int
+    ssh:int
+
+class Level(BaseModel):
+    current: int
+    progress: int
+
 # TODO make UserStatistics model https://osu.ppy.sh/docs/index.html#userstatistics
 class UserStatistics(BaseModel):
-    ...
+    grade_counts: GradeCounts
+    hit_accuracy: int
+    is_ranked: bool
+    level: Level
+    maximum_combo: int
+    play_count: int
+    play_time: int
+    pp: int
+    global_rank: int
+    ranked_score: int
+    replay_watched_by_others: int
+    total_hits: int
+    total_score: int
 
-class UserStatistics(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+
+class UserStatisticsRulesets(BaseModel):
     osu: Optional[UserStatistics] = None
     mania: Optional[UserStatistics] = None
     taiko: Optional[UserStatistics] = None
@@ -254,6 +280,37 @@ class UserStatistics(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+class UserAchievement(BaseModel):
+    achieved_at: datetime
+    achievement_id: int
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str
+        }
+
+class UserProfileCustomization(BaseModel):
+    audio_autoplay: Optional[bool] = None
+    audio_muted: Optional[bool] = None
+    audio_volume: Optional[int] = None
+    beatmapset_download: Optional[BeatmapsetDownload] = None
+    beatmapset_show_nsfw: Optional[bool] = None
+    beatmapset_title_show_original: Optional[bool] = None
+    comments_show_deleted: Optional[bool] = None
+    forum_posts_show_deleted: bool
+    ranking_expanded: bool
+    user_list_filter: Optional[UserListFilters] = None
+    user_list_sort: Optional[UserListSorts] = None
+    user_list_view: Optional[UserListViews] = None
+
+    class Config:
+        arbitrary_types_allowed = True
+
+class Kudosu(BaseModel):
+    total: int
+    available: int
 
 # https://osu.ppy.sh/docs/index.html#usercompact
 class UserCompact(BaseModel):
@@ -276,7 +333,7 @@ class UserCompact(BaseModel):
     active_tournament_banner: Optional[ProfileBanner] = None
     badges: list[UserBadge]
     beatmap_playcounts_count: int
-    blocks: any
+    blocks: Any
     country: Country
     cover: Cover
     favorite_beatmapset_count: int = Field(alias="favorite_beatmapset_count")
@@ -297,6 +354,11 @@ class UserCompact(BaseModel):
     score_first_count: int
     scores_recent_count: int
     statistics: UserStatistics
+    statistics_rulesets: UserStatisticsRulesets
+    support_level: int
+    unread_pm_count: int
+    user_achievements: UserAchievement
+    user_preferences: UserProfileCustomization
 
     class Config:
         allow_population_by_field_name = True
@@ -305,9 +367,45 @@ class UserCompact(BaseModel):
                 datetime: str,
                 }
 
+class User(UserCompact):
+    cover_url: str
+    discord: Optional[str] = None
+    has_supported: bool
+    interests: Optional[str] = None
+    join_date: datetime
+    kudosu: Kudosu
+    location: Optional[str] = None
+    max_blocks: int
+    max_friends: int
+    occupation: Optional[str] = None
+    playmode: GameMode
+    playstyle: list[str]
+    post_count: int
+    profile_order: list[str]
+    title: Optional[str] = None
+    title_url: Optional[str] = None
+    twitter: Optional[str] = None
+    website: Optional[str] = None
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+        }
+
+class Statistics(BaseModel):
+    count_50: int
+    count_100: int
+    count_300: int
+    count_geki: int
+    count_katu: int
+    count_miss: int
+
 # TODO make Score model
 class Score(BaseModel):
-    ...
+    id: int
+    best_id: int
+    user_id: int
     
 # https://osu.ppy.sh/docs/index.html#beatmapuserscore
 class BeatmapUserScore(BaseModel):
