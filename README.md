@@ -26,7 +26,7 @@ import losuapi
 # instantiate OsuApi object
 api: losuapi.OsuApi = losuapi.OsuApi(client_id=CLIENT_ID, cleint_secret=CLIENT_SECRET)
 
-# lookup_beatmap method returns a losu.Beatmap object
+# lookup_beatmap method returns a losuapi.Beatmap object
 beatmap: losuapi.Beatmap = api.lookup_beatmap(beatmap_id=1920615)
 ```
 
