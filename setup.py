@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 with open("README.md", "r") as readme:
     long_description = readme.read()
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 setup(
     name="losuapi",
@@ -15,7 +15,7 @@ setup(
     author="Darien Moore",
     author_email="LiskIsBest@gmail.com",
     url="https://github.com/LiskIsBest/Losuapi",
-    download_url="https://github.com/LiskIsBest/Losuapi/tarball/main",
+    download_url="https://github.com/LiskIsBest/Losuapi/tarball/v"+VERSION,
     license="GPLv3",
     packages=find_packages(),
     install_requires=[
