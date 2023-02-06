@@ -2,9 +2,21 @@ from enum import Enum
 
 class GameMode(str, Enum):
     OSU = "osu"
-    MANIA = "mania"
     TAIKO = "taiko"
     FRUITS = "fruits"
+    MANIA = "mania"
+
+class GameModeInt(int, Enum):
+    OSU = 0
+    TAIKO = 1
+    FRUITS = 2
+    MANIA = 3
+
+class RankingType(str, Enum):
+    CHARTS = "charts"
+    COUNTRY = "country"
+    PERFORMANCE = "performance"
+    SCORE = "score"
 
 class ScoreTypes(str, Enum):
     BEST = "best"
