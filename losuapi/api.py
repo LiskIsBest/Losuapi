@@ -1,21 +1,21 @@
 import requests
 from .models import Beatmap
+from .enums import GameMode
 from pydantic import parse_obj_as
 
 BASE_URL = "https://osu.ppy.sh/api/v2"
 TOKEN_URL = "https://osu.ppy.sh/oauth/token"
 
 class OsuApi:
-    def __init__ (self, client_id:int, client_secret:str)->None:
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.token_type, _, self.access_token = self.__get_auth()
-        self.authorization = self.token_type+" "+self.access_token
-
-        self.base_headers = {
+    base_headers = {
             "Accept" : "application/json",
             "Content-Type" : "application/json",
         }
+    def __init__ (self, client_id:int, client_secret:str)->None:
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.token_type, self.access_token = self.__get_auth()
+        self.authorization = self.token_type+" "+self.access_token
 
     def __get_auth(self):
         body_params = {
@@ -26,7 +26,7 @@ class OsuApi:
         }
 
         response = requests.post(url=TOKEN_URL, json=body_params, headers=self.base_headers).json()
-        return response["token_type"], response["expires_in"], response["access_token"]
+        return response["token_type"], response["access_token"]
 
     def lookup_beatmap(self, beatmap_id:int|str, checksum:str="", filename:str="") -> Beatmap:
         if type(beatmap_id) == int:
@@ -54,8 +54,51 @@ class OsuApi:
     
     # TODO make beatmap_scores request https://osu.ppy.sh/docs/index.html#get-beatmap-scores
     def beatmap_scores(self):
-        raise Exception("beatmap_scores not implemented")
+        raise Exception("beatmap_scores not implemented.")
     
     # TODO make beatmaps request https://osu.ppy.sh/docs/index.html#get-beatmaps
     def beatmaps(self):
-        raise Exception("beatmaps not implemented")
+        raise Exception("beatmaps not implemented.")
+    
+    # TODO make beatmap request https://osu.ppy.sh/docs/index.html#get-beatmap
+    def beatmap(self):
+        raise Exception("beatmap not implemented.")
+    
+    # TODO make beatmap_attributes request https://osu.ppy.sh/docs/index.html#get-beatmap-attributes
+    def beatmap_attributes(self):
+        raise Exception("beatmap_attributes not implemented.")
+    
+    # TODO make user_kudosu request https://osu.ppy.sh/docs/index.html#get-user-kudosu
+    def user_kudosu(self):
+        raise Exception("user_kudosu not implemented")
+    
+    def user_scores(self, 
+                    user_id:int, 
+                    type:str, 
+                    include_fails:int=0,
+                    mode:str=None,
+                    limit:int=None,
+                    offset:int=None):
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+
+        query_params = {
+            "include_fails" : include_fails,
+        }
+
+        if include_fails > 0:
+            query_params["include_fails"] = 1
+        elif include_fails < 0:
+            raise ValueError("include_fails must be greater than -1")
+
+        if mode in GameMode.__members__.values():
+            query_params["mode"] = mode
+
+        if limit != None and isinstance(limit, int):
+            query_params["limit"] = limit
+
+        if offset!= None and isinstance(offset, int):
+            query_params["offset"] = offset
+
+        response = requests.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
+        return response.json()
