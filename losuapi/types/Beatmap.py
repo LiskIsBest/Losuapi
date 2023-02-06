@@ -1,9 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from .enums import GameMode, GameModeInt
 from .Beatmapset import Beatmapset, BeatmapsetCompact
 from .Extras import Failtimes
 from typing import Optional
-from datetime import datetime
 
 # https://osu.ppy.sh/docs/index.html#beatmapcompact
 class BeatmapCompact(BaseModel):
