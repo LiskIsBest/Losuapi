@@ -81,8 +81,8 @@ class OsuApi:
                     mode:str=None,
                     limit:int=None,
                     offset:int=None):
-        raise Exception("user_scores not implemented")
-        #!
+        raise Exception("user_scores not finished") 
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
