@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from .enums import GameMode, GameModeInt
+from .Enums import GameMode, GameModeInt
 from .Beatmapset import Beatmapset, BeatmapsetCompact
 from .Extras import Failtimes
 from typing import Optional

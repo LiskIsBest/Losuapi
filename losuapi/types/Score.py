@@ -3,7 +3,7 @@ from .User import User
 from .Beatmap import Beatmap
 from .Beatmapset import Beatmapset
 from .Extras import Weight, ScoreMatchInfo, Statistics
-from .enums import GameModeInt
+from .Enums import GameModeInt
 from typing import Optional
 
 # https://osu.ppy.sh/docs/index.html#score

@@ -3,7 +3,7 @@ from typing import Optional, Any
 from .UserExtras import UserAccountHistory, UserBadge, UserGroup, UserMonthlyPlaycount, UserAchievement, UserProfileCustomization
 from .UserStatistics import UserStatistics, UserStatisticsRulesets
 from .Extras import ProfileBanner, Country, Cover, Page, RankHighest, RankHistory, ReplaysWatchedCount, Kudosu
-from .enums import GameMode
+from .Enums import GameMode
 
 # https://osu.ppy.sh/docs/index.html#usercompact
 class UserCompact(BaseModel):

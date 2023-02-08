@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from .enums import UserAcountHistoryTypes, GameMode, BeatmapsetDownload, UserListFilters, UserListSorts, UserListViews
+from .Enums import UserAcountHistoryTypes, GameMode, BeatmapsetDownload, UserListFilters, UserListSorts, UserListViews
 
 # https://osu.ppy.sh/docs/index.html#usergroup
 class UserGroup(BaseModel):
