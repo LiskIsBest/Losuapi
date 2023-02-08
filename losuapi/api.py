@@ -87,8 +87,11 @@ class OsuApi:
         query_params = {}
         
         if include_fails != 0:
-            if type != ScoreTypes.RECENT
-            raise ValueError("filter must be 0 or 1")
+            if type != ScoreTypes.RECENT:
+                raise ValueError("type must be 'recent' in order to set include_fails")
+            elif type != 1:
+                raise ValueError("include_fails must be either 1 or 0")
+            query_params["include_fails"] = include_fails
 
         if mode != None: 
             if mode in GameMode.__members__.values():
