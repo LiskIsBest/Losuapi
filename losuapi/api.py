@@ -1,5 +1,5 @@
 import requests
-from .types import Beatmap, Rankings, User, Scores, GameMode, RankingType
+from .types import Beatmap, Rankings, User, Scores, GameMode, RankingType, ScoreTypes
 from pydantic import parse_obj_as
 
 BASE_URL = "https://osu.ppy.sh/api/v2"
@@ -16,7 +16,7 @@ class OsuApi:
         self.token_type, self.access_token = self.__get_auth()
         self.authorization = self.token_type+" "+self.access_token
 
-    # https://osu.ppy.sh/docs/index.html#client-credentials-grant
+    # * https://osu.ppy.sh/docs/index.html#client-credentials-grant
     def __get_auth(self):
         body_params = {
             "client_id" : self.client_id,
@@ -28,7 +28,7 @@ class OsuApi:
         response = requests.post(url=TOKEN_URL, json=body_params, headers=self.base_headers).json()
         return response["token_type"], response["access_token"]
 
-    # https://osu.ppy.sh/docs/index.html#lookup-beatmap
+    # * https://osu.ppy.sh/docs/index.html#lookup-beatmap
     def lookup_beatmap(self, beatmap_id:int|str, checksum:str="", filename:str="") -> Beatmap:
         if type(beatmap_id) == int:
             beatmap_id = str(beatmap_id)
@@ -84,12 +84,11 @@ class OsuApi:
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
-        if include_fails not in [0,1]:
+        query_params = {}
+        
+        if include_fails != 0:
+            if type != ScoreTypes.RECENT
             raise ValueError("filter must be 0 or 1")
-
-        query_params = {
-            "include_fails" : include_fails,
-        }
 
         if mode != None: 
             if mode in GameMode.__members__.values():
@@ -104,7 +103,7 @@ class OsuApi:
             query_params["offset"] = offset
 
         response = requests.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
-        return parse_obj_as(type_=Scores, obj=response.json())
+        return parse_obj_as(type_=Scores, obj=response.json()[0])
                 
     # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
     def user_beatmaps(self):
@@ -114,7 +113,7 @@ class OsuApi:
     def user_recent_activity(self):
         raise Exception("user_recent_activity not implemented.")
     
-    # https://osu.ppy.sh/docs/index.html#get-user
+    # * https://osu.ppy.sh/docs/index.html#get-user
     def user(self,
             username:int|str,
             mode:str="",
@@ -125,17 +124,18 @@ class OsuApi:
 
         query_params = {}
 
-        if mode != None: 
-            if mode in GameMode.__members__.values():
-                query_params["mode"] = mode
-            else:
-                raise ValueError("mode not in ['osu','taiko','fruits','mania']")
+        if not isinstance(username, (int,str)):
+            raise ValueError("username must be an int or str")
 
-        if key != None and isinstance(key,str):
-            if key in ["id", "username"]:
-                query_params["key"] = key
-            else:
+        if mode != "": 
+            if mode not in GameMode.__members__.values():
+                raise ValueError("mode not in ['osu','taiko','fruits','mania']")
+            query_params["mode"] = mode
+
+        if key != None:
+            if key not in ["id", "username"]:
                 raise ValueError("key must be in ['id','username']")
+            query_params["key"] = key
 
         response = requests.get(url=BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
         return parse_obj_as(type_=User, obj=response.json())
@@ -169,28 +169,25 @@ class OsuApi:
             query_params["cursor"] = cursor
         
         if country != None and isinstance(country, int):
-            if type == RankingType.PERFORMANCE:
-                query_params["country"] = country
-            else:
+            if type != RankingType.PERFORMANCE:
                 raise ValueError("type must be 'performance' in order to set a country code.")
+            query_params["country"] = country
 
         if spotlight_id != None:
-            if type == RankingType.CHARTS:
-                query_params["spotlight"] = spotlight_id
-            else:
+            if type != RankingType.CHARTS:
                 raise ValueError("type must be 'charts' in order to set a spotlight_id.")
+            query_params["spotlight"] = spotlight_id
 
         if not variant:
             pass
-        elif variant in ["4k","7k"]:
+        elif variant not in ["4k","7k"]:
+            raise ValueError("variant can only be '4k' or '7k'")
+        else:
             if type != RankingType.PERFORMANCE:
                 raise ValueError("type must be 'performance'")
-            if mode == GameMode.MANIA:
-                query_params["variant"] = variant
-            else:
+            if mode != GameMode.MANIA:
                 raise ValueError("mode must be 'mania'")
-        else:
-            raise ValueError("variant can only be '4k' or '7k'")
+            query_params["variant"] = variant
 
         response = requests.get(url=BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
         return parse_obj_as(type_=Rankings, obj=response.json())
