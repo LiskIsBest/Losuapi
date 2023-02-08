@@ -1,49 +1,73 @@
-from enum import Enum
+from enum import IntEnum, auto, StrEnum
 
-class GameMode(str, Enum):
-    OSU = "osu"
-    TAIKO = "taiko"
-    FRUITS = "fruits"
-    MANIA = "mania"
+class GameMode(StrEnum):
+    OSU = auto()
+    TAIKO = auto()
+    FRUITS = auto()
+    MANIA = auto()
 
-class GameModeInt(int, Enum):
+    def __repr__(self):
+        return self.value
+
+class GameModeInt(IntEnum):
     OSU = 0
-    TAIKO = 1
-    FRUITS = 2
-    MANIA = 3
+    TAIKO = auto()
+    FRUITS = auto()
+    MANIA = auto()
 
-class RankingType(str, Enum):
-    CHARTS = "charts"
-    COUNTRY = "country"
-    PERFORMANCE = "performance"
-    SCORE = "score"
+class RankingType(StrEnum):
+    CHARTS = auto()
+    COUNTRY = auto()
+    PERFORMANCE = auto()
+    SCORE = auto()
 
-class ScoreTypes(str, Enum):
-    BEST = "best"
-    FIRSTS = "firsts"
-    RECENT = "recent"
-    
-class UserAcountHistoryTypes(str, Enum):
-    NOTE = "note"
-    RESTRICTION = "restriction"
-    SILENCE = "silence"
-    
-class BeatmapsetDownload(str, Enum):
-    ALL = "all"
-    NO_VIDEO = "no_video"
-    DIRECT = "direct"
+    def __repr__(self):
+        return self.value
 
-class UserListFilters(str, Enum):
-    ALL = "all"
-    ONLINE = "online"
-    OFFLINE = "offline"
+class ScoreTypes(StrEnum):
+    BEST = auto()
+    FIRSTS = auto()
+    RECENT = auto()
+
+    def __repr__(self):
+        return self.value
     
-class UserListSorts(str, Enum):
-    LAST_VISIT = "last_visited"
-    RANK = "rank"
-    USERNAME = "username"
+class UserAcountHistoryTypes(StrEnum):
+    NOTE = auto()
+    RESTRICTION = auto()
+    SILENCE = auto()
+
+    def __repr__(self):
+        return self.value
     
-class UserListViews(str, Enum):
-    CARD = "card"
-    LIST = "list"
-    BRICK = "brick"
+class BeatmapsetDownload(StrEnum):
+    ALL = auto()
+    NO_VIDEO = auto()
+    DIRECT = auto()
+
+    def __repr__(self):
+        return self.value
+
+class UserListFilters(StrEnum):
+    ALL = auto()
+    ONLINE = auto()
+    OFFLINE = auto()
+
+    def __repr__(self):
+        return self.value
+    
+class UserListSorts(StrEnum):
+    LAST_VISIT = auto()
+    RANK = auto()
+    USERNAME = auto()
+
+    def __repr__(self):
+        return self.value
+    
+class UserListViews(StrEnum):
+    CARD = auto()
+    LIST = auto()
+    BRICK = auto()
+
+    def __repr__(self):
+        return self.value
