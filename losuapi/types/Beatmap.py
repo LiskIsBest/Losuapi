@@ -14,7 +14,7 @@ class BeatmapCompact(BaseModel):
     user_id: int
     version: str
     
-	# optionals
+    # optionals
     beatmapset: Beatmapset|BeatmapsetCompact | None
     checksum: str | None
     failtimes: Failtimes | None
@@ -45,5 +45,11 @@ class Beatmap(BeatmapCompact):
     ranked: int
     url: str
 
+    class Config:
+        arbitrary_types_allowed = True
+        
+class Beatmaps(BaseModel):
+    beatmaps: list[Beatmap]
+    
     class Config:
         arbitrary_types_allowed = True
