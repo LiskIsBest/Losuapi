@@ -1,4 +1,4 @@
-from .Beatmap import Beatmap, BeatmapCompact
+from .Beatmap import Beatmap, BeatmapCompact, Beatmaps
 from .Beatmapset import Beatmapset, BeatmapsetCompact
 from .Covers import Covers
 from .DifficultyAttributes import DifficultyAttributes
