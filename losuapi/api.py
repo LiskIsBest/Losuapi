@@ -1,5 +1,5 @@
-import requests
-from .types import Beatmap, Rankings, User, Scores, GameMode, RankingType, ScoreTypes
+import httpx
+from .types import Beatmap, Rankings, User, Score, GameMode, RankingType, ScoreTypes
 from pydantic import parse_obj_as
 
 BASE_URL = "https://osu.ppy.sh/api/v2"
@@ -25,7 +25,7 @@ class OsuApi:
             "scope" : "public",
         }
 
-        response = requests.post(url=TOKEN_URL, json=body_params, headers=self.base_headers).json()
+        response = httpx.post(url=TOKEN_URL, json=body_params, headers=self.base_headers).json()
         return response["token_type"], response["access_token"]
 
     # * https://osu.ppy.sh/docs/index.html#lookup-beatmap
@@ -36,13 +36,23 @@ class OsuApi:
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
-        body_params = {
+        query_params = {
             "checksum" : checksum,
             "filename" : filename,
             "id" : beatmap_id,
         }
 
-        response = requests.get(url=BASE_URL+"/beatmaps/lookup", json=body_params, headers=headers)
+        if not isinstance(beatmap_id, (int,str)):
+            raise ValueError("username must be an int or str")
+        else:
+            query_params["id"] = beatmap_id
+
+        if checksum != "":
+            if isinstance(checksum, str):
+                raise TypeError()
+
+
+        response = httpx.get(url=BASE_URL+"/beatmaps/lookup", params=query_params, headers=headers)
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
     # TODO make user_beatmap_score request https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-score
@@ -73,7 +83,7 @@ class OsuApi:
     def user_kudosu(self):
         raise Exception("user_kudosu not implemented")
     
-    # TODO https://osu.ppy.sh/docs/index.html#get-user-scores
+    # * https://osu.ppy.sh/docs/index.html#get-user-scores
     def user_scores(self, 
                     user_id:int, 
                     type:str, 
@@ -105,8 +115,11 @@ class OsuApi:
         if offset!= None and isinstance(offset, int):
             query_params["offset"] = offset
 
-        response = requests.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
-        return parse_obj_as(type_=Scores, obj=response.json()[0])
+        response = httpx.get(url=BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params).json()
+        Scores = []
+        for score in response:
+            Scores.append(parse_obj_as(type_=Score, obj=score))
+        return Scores
                 
     # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
     def user_beatmaps(self):
@@ -140,7 +153,7 @@ class OsuApi:
                 raise ValueError("key must be in ['id','username']")
             query_params["key"] = key
 
-        response = requests.get(url=BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
+        response = httpx.get(url=BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
         return parse_obj_as(type_=User, obj=response.json())
 
     # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
@@ -166,12 +179,16 @@ class OsuApi:
             "filter" : filter,
         }
 
-        if cursor != None and isinstance(cursor, int):
+        if cursor != None:
+            if not isinstance(cursor, int):
+                raise TypeError("cursor must be an int")
             if cursor < 0:
                 raise ValueError("cursor must be greater that -1")    
             query_params["cursor"] = cursor
         
-        if country != None and isinstance(country, int):
+        if country != None:
+            if not isinstance(country, int):
+                raise TypeError("country must be an int")
             if type != RankingType.PERFORMANCE:
                 raise ValueError("type must be 'performance' in order to set a country code.")
             query_params["country"] = country
@@ -192,7 +209,7 @@ class OsuApi:
                 raise ValueError("mode must be 'mania'")
             query_params["variant"] = variant
 
-        response = requests.get(url=BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
+        response = httpx.get(url=BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
         return parse_obj_as(type_=Rankings, obj=response.json())
     
     # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
