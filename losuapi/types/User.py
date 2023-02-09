@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
 from typing import Any
+from pydantic import BaseModel, Field
 from .UserExtras import UserAccountHistory, UserBadge, UserGroup, UserMonthlyPlaycount, UserAchievement, UserProfileCustomization
 from .UserStatistics import UserStatistics, UserStatisticsRulesets
 from .Extras import ProfileBanner, Country, Cover, Page, RankHighest, RankHistory, ReplaysWatchedCount, Kudosu
@@ -16,7 +17,7 @@ class UserCompact(BaseModel):
     is_deleted: bool
     is_online: bool
     is_supporter: bool
-    last_vist: str | None
+    last_vist: datetime | None
     pm_friends_only: bool
     profile_color: str | None = Field(alias="profile_colour")
     username: str
@@ -56,6 +57,9 @@ class UserCompact(BaseModel):
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+		}
 
 # https://osu.ppy.sh/docs/index.html#user
 class User(UserCompact):
@@ -63,7 +67,7 @@ class User(UserCompact):
     discord: str | None
     has_supported: bool
     interests: str | None
-    join_date: str
+    join_date: datetime
     kudosu: Kudosu
     location: str | None
     max_blocks: int
@@ -80,3 +84,6 @@ class User(UserCompact):
 
     class Config:
         arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+		}

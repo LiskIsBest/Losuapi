@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 from .Enums import GameMode, GameModeInt
 from .Beatmapset import Beatmapset, BeatmapsetCompact
@@ -34,11 +35,11 @@ class Beatmap(BeatmapCompact):
     count_sliders: int
     count_spinners: int
     cs: float
-    deleted_at: str | None
+    deleted_at: datetime | None
     drain: float
     hit_length: int
     is_scoreable: bool
-    last_updated: str
+    last_updated: datetime
     mode_int: GameModeInt
     passcount: int
     playcount: int
@@ -47,6 +48,9 @@ class Beatmap(BeatmapCompact):
 
     class Config:
         arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+		}
         
 class Beatmaps(BaseModel):
     beatmaps: list[Beatmap]

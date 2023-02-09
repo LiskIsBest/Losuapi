@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
 from typing import Any
+from pydantic import BaseModel, Field
 from .Extras import Availability, Nominations, Hype
 from .User import UserCompact
 from .Covers import Covers
@@ -51,16 +52,19 @@ class Beatmapset(BeatmapsetCompact):
     discussion_locked: bool
     hype: Hype | None
     is_scoreable: bool
-    last_updated: str
+    last_updated: datetime
     legacy_thread_url: str | None
     nominations: Nominations | None
     ranked: int
-    ranked_date: str | None
+    ranked_date: datetime | None
     source: str
     storyboard: bool
-    submitted_date: str | None
+    submitted_date: datetime | None
     tags: str
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+		}

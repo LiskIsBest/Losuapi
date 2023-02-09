@@ -90,7 +90,7 @@ class Giver(BaseModel):
     username: str
 
 # https://osu.ppy.sh/docs/index.html#kudosuhistory
-class Post:
+class Post(BaseModel):
     url: str | None
     title: str
     

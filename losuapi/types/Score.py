@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 from .User import UserCompact
 from .Beatmap import BeatmapCompact
@@ -17,7 +18,7 @@ class Score(BaseModel):
     passed: bool
     pp: float
     rank: str
-    created_at: str
+    created_at: datetime
     mode: str
     mode_int: GameModeInt
     replay: bool
@@ -34,6 +35,9 @@ class Score(BaseModel):
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
+        json_encoders = {
+            datetime: str,
+		}
         
 # https://osu.ppy.sh/docs/index.html#beatmapuserscore
 class BeatmapUserScore(BaseModel):
