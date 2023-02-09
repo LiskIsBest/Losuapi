@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 from .DifficultyAttributes import DifficultyAttributes
 
 class GradeCounts(BaseModel):
@@ -44,7 +43,7 @@ class ReplaysWatchedCount(BaseModel):
     
 class Availability(BaseModel):
     download_disabled: bool
-    more_information: Optional[str] = None
+    more_information: str | None
     
 class Hype(BaseModel):
     current: int
@@ -92,9 +91,9 @@ class Giver(BaseModel):
 
 # https://osu.ppy.sh/docs/index.html#kudosuhistory
 class Post:
-    url: Optional[str] = None
+    url: str | None
     title: str
     
 class Failtimes(BaseModel):
-    exit: Optional[list[int]] = None
-    fail: Optional[list[int]] = None
+    exit: list[int] | None
+    fail: list[int] | None

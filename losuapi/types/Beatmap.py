@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from .Enums import GameMode, GameModeInt
 from .Beatmapset import Beatmapset, BeatmapsetCompact
 from .Extras import Failtimes
-from typing import Optional
 
 # https://osu.ppy.sh/docs/index.html#beatmapcompact
 class BeatmapCompact(BaseModel):
@@ -14,10 +13,12 @@ class BeatmapCompact(BaseModel):
     total_length: int
     user_id: int
     version: str
-    beatmapset: Optional[Beatmapset|BeatmapsetCompact] = None
-    checksum: Optional[str]
-    failtimes: Optional[Failtimes]
-    max_combo: Optional[int]
+    
+	# optionals
+    beatmapset: Beatmapset|BeatmapsetCompact | None
+    checksum: str | None
+    failtimes: Failtimes | None
+    max_combo: int | None
 
     class Config:
         arbitrary_types_allowed = True
@@ -27,13 +28,13 @@ class Beatmap(BeatmapCompact):
     accuracy: float
     ar: float
     beatmapset_id: int
-    bpm: Optional[float] = None
+    bpm: float | None
     convert: bool
     count_circles: int
     count_sliders: int
     count_spinners: int
     cs: float
-    deleted_at: Optional[str] = None
+    deleted_at: str | None
     drain: float
     hit_length: int
     is_scoreable: bool

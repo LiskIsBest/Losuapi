@@ -1,10 +1,9 @@
 from pydantic import BaseModel, Field
-from .User import User
-from .Beatmap import Beatmap
-from .Beatmapset import Beatmapset
+from .User import UserCompact
+from .Beatmap import BeatmapCompact
+from .Beatmapset import BeatmapsetCompact
 from .Extras import Weight, ScoreMatchInfo, Statistics
 from .Enums import GameModeInt
-from typing import Optional
 
 # https://osu.ppy.sh/docs/index.html#score
 class Score(BaseModel):
@@ -24,13 +23,13 @@ class Score(BaseModel):
     replay: bool
     
     # optionals
-    beatmap: Beatmap
-    beatmapset: Beatmapset
-    rank_country: int
-    rank_global: int
-    weight: Weight
-    user: User
-    score_match: ScoreMatchInfo = Field(alias="match")
+    beatmap: BeatmapCompact | None
+    beatmapset: BeatmapsetCompact | None
+    rank_country: int | None
+    rank_global: int | None
+    weight: Weight | None
+    user: UserCompact | None
+    score_match: ScoreMatchInfo | None = Field(alias="match")
 
     class Config:
         allow_population_by_field_name = True
@@ -44,7 +43,7 @@ class BeatmapUserScore(BaseModel):
 # https://osu.ppy.sh/docs/index.html#beatmapscores
 class BeatmapScores(BaseModel):
     scores: list[Score]
-    userScore: Optional[BeatmapUserScore] = None
+    userScore: BeatmapUserScore | None
 
     class Config:
         arbitrary_types_allowed = True

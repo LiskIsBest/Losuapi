@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 from .Extras import Level, GradeCounts
 
 # https://osu.ppy.sh/docs/index.html#userstatistics
@@ -22,10 +21,10 @@ class UserStatistics(BaseModel):
         arbitrary_types_allowed = True
 
 class UserStatisticsRulesets(BaseModel):
-    osu: Optional[UserStatistics] = None
-    mania: Optional[UserStatistics] = None
-    taiko: Optional[UserStatistics] = None
-    fruits: Optional[UserStatistics] = None
+    osu: UserStatistics | None
+    mania: UserStatistics | None
+    taiko: UserStatistics | None
+    fruits: UserStatistics | None
 
     class Config:
         arbitrary_types_allowed = True

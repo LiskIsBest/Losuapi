@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from .Extras import Post, Giver
-from typing import Optional
 
 # https://osu.ppy.sh/docs/index.html#kudosuhistory
 class KudosuHistory(BaseModel):
@@ -9,7 +8,7 @@ class KudosuHistory(BaseModel):
     account: int
     model: str
     created_at: str
-    giver: Optional[Giver] = None
+    giver: Giver | None
     post: Post
 
     class Config:

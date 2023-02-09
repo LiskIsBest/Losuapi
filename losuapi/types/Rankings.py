@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 from .Beatmapset import Beatmapset
 from .UserStatistics import UserStatistics
 
@@ -7,7 +6,7 @@ class Spotlight(BaseModel):
     end_date: str
     id: int
     mode_specific: bool
-    participant_count: Optional[int] = None
+    participant_count: int | None
     name: str
     start_date: str
     type_: str
