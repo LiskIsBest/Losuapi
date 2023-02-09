@@ -1,73 +1,55 @@
-from enum import IntEnum, auto, StrEnum
+from enum import IntEnum, Enum
 
-class GameMode(StrEnum):
-    OSU = auto()
-    TAIKO = auto()
-    FRUITS = auto()
-    MANIA = auto()
+class ExtendedEnum(Enum):
 
-    def __repr__(self):
-        return self.value
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+
+class GameMode(ExtendedEnum):
+    OSU = "osu"
+    TAIKO = "taiko"
+    FRUITS = "fruits"
+    MANIA = "mania"
 
 class GameModeInt(IntEnum):
     OSU = 0
-    TAIKO = auto()
-    FRUITS = auto()
-    MANIA = auto()
+    TAIKO = 1
+    FRUITS = 2
+    MANIA = 3
 
-class RankingType(StrEnum):
-    CHARTS = auto()
-    COUNTRY = auto()
-    PERFORMANCE = auto()
-    SCORE = auto()
+class RankingType(ExtendedEnum):
+    CHARTS = "charts"
+    COUNTRY = "country"
+    PERFORMANCE = "performance"
+    SCORE = "score"
 
-    def __repr__(self):
-        return self.value
-
-class ScoreTypes(StrEnum):
-    BEST = auto()
-    FIRSTS = auto()
-    RECENT = auto()
-
-    def __repr__(self):
-        return self.value
+class ScoreTypes(ExtendedEnum):
+    BEST = "best"
+    FIRSTS = "firsts"
+    RECENT = "recent"
     
-class UserAcountHistoryTypes(StrEnum):
-    NOTE = auto()
-    RESTRICTION = auto()
-    SILENCE = auto()
-
-    def __repr__(self):
-        return self.value
+class UserAcountHistoryTypes(ExtendedEnum):
+    NOTE = "note"
+    RESTRICTION = "restriction"
+    SILENCE = "silence"
     
-class BeatmapsetDownload(StrEnum):
-    ALL = auto()
-    NO_VIDEO = auto()
-    DIRECT = auto()
+class BeatmapsetDownload(ExtendedEnum):
+    ALL = "all"
+    NO_VIDEO = "no_video"
+    DIRECT = "direct"
 
-    def __repr__(self):
-        return self.value
-
-class UserListFilters(StrEnum):
-    ALL = auto()
-    ONLINE = auto()
-    OFFLINE = auto()
-
-    def __repr__(self):
-        return self.value
+class UserListFilters(ExtendedEnum):
+    ALL = "all"
+    ONLINE = "online"
+    OFFLINE = "offline"
     
-class UserListSorts(StrEnum):
-    LAST_VISIT = auto()
-    RANK = auto()
-    USERNAME = auto()
-
-    def __repr__(self):
-        return self.value
+class UserListSorts(ExtendedEnum):
+    LAST_VISIT = "last_visit"
+    RANK = "rank"
+    USERNAME = "username"
     
-class UserListViews(StrEnum):
-    CARD = auto()
-    LIST = auto()
-    BRICK = auto()
-
-    def __repr__(self):
-        return self.value
+class UserListViews(ExtendedEnum):
+    CARD = "card"
+    LIST = "list"
+    BRICK = "brick"
