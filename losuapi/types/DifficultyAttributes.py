@@ -4,17 +4,23 @@ from pydantic import BaseModel, Field
 class DifficultyAttributes(BaseModel):
     max_combo: int
     star_rating: float
-    aim_difficulty: float
-    approach_rate: float
-    flastlight_difficulty: float
-    overall_difficulty: float
-    slider_factor: float
-    speed_difficulty: float
-    stamina_difficulty: float
-    rhythm_difficulty: float
-    color_difficulty: float = Field(alias="colour_difficulty")
-    great_hit_window: float
-    score_multiplayer: float
+    aim_difficulty: float | None
+    approach_rate: float | None
+    flastlight_difficulty: float | None
+    overall_difficulty: float | None
+    slider_factor: float | None
+    speed_difficulty: float | None
+    stamina_difficulty: float | None
+    rhythm_difficulty: float | None
+    color_difficulty: float | None = Field(alias="colour_difficulty")
+    great_hit_window: float | None
+    score_multiplier: float | None
 
     class Config:
         allow_population_by_field_name = True
+        
+class Attributes(BaseModel):
+    attributes: DifficultyAttributes
+    
+    class Config:
+        arbitrary_types_allowed = True
