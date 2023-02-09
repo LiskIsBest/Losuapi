@@ -13,7 +13,7 @@ class Level(BaseModel):
     progress: int
     
 class Cover(BaseModel):
-    custom_url: str
+    custom_url: str | None
     url: str
     id: int | None
 
