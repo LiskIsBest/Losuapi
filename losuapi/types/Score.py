@@ -50,3 +50,6 @@ class BeatmapScores(BaseModel):
         
 class Scores(BaseModel):
     __root__: list[Score]
+    
+    class Config:
+        arbitrary_types_allowed = True
