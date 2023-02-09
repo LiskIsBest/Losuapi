@@ -35,5 +35,14 @@ beatmap: losuapi.Beatmap = api.lookup_beatmap(beatmap_id=1920615)
 from losuapi import OsuApi
 
 OsuApi.lookup_beatmap(beatmap_id, checksum, filename)
+OsuApi.user_beatmap_score(beatmap_id, user_id, mode, mods)
+OsuApi.user_beatmap_scores(beatmap_id, user_id, mode)
+OsuApi.beatmap_scores(beatmap_id, mode, mods, type)
+OsuApi.beatmaps(beatmap_ids)
+OsuApi.beatmap(beatmap_id)
+OsuApi.beatmap_attributes(beatmap_id, mods ruleset, ruleset_id)
+OsuApi.user_kudosu(user_id, limit, offset)
+OsuApi.user_scores(user_id, type, include_fails, mode, limit, offset)
 OsuApi.user(username, mode, key)
+OsuApi.ranking(mode, type, filter, country, cursor, spotlight_id, variant)
 ```
