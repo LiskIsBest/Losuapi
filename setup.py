@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 with open("README.md", "r") as readme:
     long_description = readme.read()
 
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 
 setup(
     name="losuapi",
@@ -19,7 +19,7 @@ setup(
     license="GPLv3",
     packages=find_packages(),
     install_requires=[
-		"requests",
+		"httpx",
         "pydantic"
 	]
 )
