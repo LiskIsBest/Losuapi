@@ -23,6 +23,7 @@ class BeatmapCompact(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+        use_enum_values = True
     
 # https://osu.ppy.sh/docs/index.html#beatmap
 class Beatmap(BeatmapCompact):
@@ -48,6 +49,7 @@ class Beatmap(BeatmapCompact):
 
     class Config:
         arbitrary_types_allowed = True
+        use_enum_values = True
         json_encoders = {
             datetime: str,
 		}

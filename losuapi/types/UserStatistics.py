@@ -19,6 +19,7 @@ class UserStatistics(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+        use_enum_values = True
 
 class UserStatisticsRulesets(BaseModel):
     osu: UserStatistics | None
