@@ -13,17 +13,17 @@ class OsuApi:
     TOKEN_URL = "https://osu.ppy.sh/oauth/token"
 
     def __init__ (self, client_id:int, client_secret:str)->None:
-        self.httpx_client = httpx.Client()
+        self.Client = httpx.Client()
         self.client_id = client_id
         self.client_secret = client_secret
         self.token_type, self.access_token = self.__get_auth()
         self.authorization = self.token_type+" "+self.access_token
 
     def __del__(self):
-        self.httpx_client.close()
+        self.Client.close()
     
     def __exit__(self):
-        self.httpx_client.close()
+        self.Client.close()
 
     #? https://osu.ppy.sh/docs/index.html#client-credentials-grant
     def __get_auth(self):
@@ -34,7 +34,7 @@ class OsuApi:
             "scope" : "public",
         }
 
-        response = self.httpx_client.post(url=self.TOKEN_URL, json=body_params, headers=self.base_headers).json()
+        response = self.Client.post(url=self.TOKEN_URL, json=body_params, headers=self.base_headers).json()
         if "error" in response:
             raise ConnectionError(f'error: {response["error"]}')
         return response["token_type"], response["access_token"]
@@ -64,7 +64,7 @@ class OsuApi:
             query_params["filename"] = filename
 
 
-        response = self.httpx_client.get(url=self.BASE_URL+"/beatmaps/lookup", params=query_params, headers=headers)
+        response = self.Client.get(url=self.BASE_URL+"/beatmaps/lookup", params=query_params, headers=headers)
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-score
@@ -94,7 +94,7 @@ class OsuApi:
                 raise c_TypeError(param_name="mods",correct="str",wrong=type(mods).__name__)
             query_params["mods"] = mods
 
-        response = self.httpx_client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}", headers=headers, params=query_params)
         return parse_obj_as(type_=BeatmapUserScore, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-scores
@@ -118,7 +118,7 @@ class OsuApi:
                 mode = mode.value
             query_params["mode"] = mode
         
-        response = self.httpx_client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all", headers=headers, params=query_params)
         return parse_obj_as(type_=Scores, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap-scores
@@ -150,7 +150,7 @@ class OsuApi:
             if not isinstance(type, str):
                 raise c_TypeError(param_name="type",correct="str",wrong=type(type).__name__)
             
-        response = self.httpx_client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores", headers=headers, params=query_params)
         return parse_obj_as(type_=BeatmapScores, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmaps
@@ -166,7 +166,7 @@ class OsuApi:
             raise c_TypeError(param_name="beatmap_ids[elements]", correct="int", wrong=type(beatmap_ids[0]).__name__)
         query_params["ids[]"] = beatmap_ids
 
-        response = self.httpx_client.get(url=self.BASE_URL+"/beatmaps", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+"/beatmaps", headers=headers, params=query_params)
         return parse_obj_as(type_=Beatmaps, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap
@@ -178,7 +178,7 @@ class OsuApi:
         if not isinstance(beatmap_id, int):
             raise c_TypeError(param_name="beatmap_id", correct="int", wrong=type(beatmap_id).__name__)
         
-        response = self.httpx_client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}", headers=headers)
+        response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}", headers=headers)
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap-attributes
@@ -213,7 +213,7 @@ class OsuApi:
                 raise c_TypeError(param_name="ruleset_id", correct="GameMode|int",wrong=type(ruleset_id).__name__)
             query_params["ruleset_id"] = ruleset_id
 
-        response = self.httpx_client.post(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/attributes", headers=headers, params=query_params)
+        response = self.Client.post(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/attributes", headers=headers, params=query_params)
         return parse_obj_as(type_=Attributes, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user-kudosu
@@ -238,7 +238,7 @@ class OsuApi:
                 raise c_TypeError(param_name="offset", correct="str", wrong=type(offset).__name__)
             query_params["offset"] = offset
             
-        response = self.httpx_client.get(url=self.BASE_URL+f"/users/{user_id}/kudosu", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/kudosu", headers=headers, params=query_params)
         return parse_obj_as(type_=list[KudosuHistory], obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user-scores
@@ -277,7 +277,7 @@ class OsuApi:
                 raise c_TypeError(param_name="offset",correct="int",wrong=type(offset).__name__) 
             query_params["offset"] = offset
 
-        response = self.httpx_client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
     # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
@@ -291,8 +291,8 @@ class OsuApi:
     #? https://osu.ppy.sh/docs/index.html#get-user
     def user(self,
              username:int|str,
-             mode:GameMode|str=None,
-             key:str=None)-> User:
+             mode:GameMode|str="",
+             key:str="")-> User:
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -300,19 +300,18 @@ class OsuApi:
         if not isinstance(username, (int,str)):
             raise c_TypeError(param_name="username",correct="int|str",wrong=type(username).__name__)
 
-        if mode:
+        if mode != "":
             if not isinstance(mode, (GameMode, str)):
                 raise c_TypeError(param_name="mode",correct="GameMode|str",wrong=type(mode).__name__)
             if isinstance(mode, GameMode):
                 mode = mode.value
-            query_params["mode"] = mode
 
-        if key:
+        if key != "":
             if key not in ["id", "username"]:
                 raise ValueError("key can only be 'id' or 'username'")
             query_params["key"] = key
 
-        response = self.httpx_client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
         return parse_obj_as(type_=User, obj=response.json())
 
     # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
@@ -370,7 +369,7 @@ class OsuApi:
                 raise ValueError("mode must be 'mania' to use variant")
             query_params["variant"] = variant
 
-        response = self.httpx_client.get(url=self.BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
         return parse_obj_as(type_=Rankings, obj=response.json())
     
     # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
