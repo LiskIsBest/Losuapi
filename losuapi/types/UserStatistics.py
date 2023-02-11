@@ -11,7 +11,7 @@ class UserStatistics(BaseModel):
     play_count: int
     play_time: int
     pp: int
-    global_rank: int
+    global_rank: int | None
     ranked_score: int
     replays_watched_by_others: int
     total_hits: int
