@@ -52,10 +52,19 @@ class Beatmap(BeatmapCompact):
         use_enum_values = True
         json_encoders = {
             datetime: str,
-		}
+        }
         
 class Beatmaps(BaseModel):
     beatmaps: list[Beatmap]
+    
+    class Config:
+        arbitrary_types_allowed = True
+        
+class BeatmapPlaycount(BaseModel):
+    beatmap_id: int
+    beatmap: BeatmapCompact | None
+    beatmapset: BeatmapsetCompact | None
+    count: int
     
     class Config:
         arbitrary_types_allowed = True
