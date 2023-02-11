@@ -34,6 +34,14 @@ class UserAcountHistoryTypes(ExtendedEnum):
     RESTRICTION = "restriction"
     SILENCE = "silence"
     
+class BeatmapType(ExtendedEnum):
+    FAVORITE = "favourite"
+    GRAVEYARD = "graveyard"
+    LOVED = "loved"
+    MOST_PLAYED = "most_played"
+    PENDING = "pending"
+    RANKED = "ranked"
+    
 class BeatmapsetDownload(ExtendedEnum):
     ALL = "all"
     NO_VIDEO = "no_video"
