@@ -1,6 +1,6 @@
 import httpx
 from pydantic import parse_obj_as
-from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory
+from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users
 from .utility import c_TypeError
 
 class OsuApi:
@@ -50,8 +50,7 @@ class OsuApi:
 
         if not isinstance(beatmap_id, int):
             raise c_TypeError(param_name="beatmap_id",correct="int",wrong=type(beatmap_id).__name__)
-        else:
-            query_params["id"] = beatmap_id
+        query_params["id"] = beatmap_id
 
         if checksum:
             if not isinstance(checksum, str):
@@ -126,7 +125,7 @@ class OsuApi:
                        beatmap_id:int, 
                        mode:GameMode|str=None, 
                        mods:str=None, 
-                       type:str=None)->BeatmapScores:
+                       Type:str=None)->BeatmapScores:
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -147,8 +146,8 @@ class OsuApi:
             query_params["mods"] = mods
 
         if type:
-            if not isinstance(type, str):
-                raise c_TypeError(param_name="type",correct="str",wrong=type(type).__name__)
+            if not isinstance(Type, str):
+                raise c_TypeError(param_name="Type",correct="str",wrong=type(Type).__name__)
             
         response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores", headers=headers, params=query_params)
         return parse_obj_as(type_=BeatmapScores, obj=response.json())
@@ -244,7 +243,7 @@ class OsuApi:
     #? https://osu.ppy.sh/docs/index.html#get-user-scores
     def user_scores(self, 
                     user_id:int, 
-                    type:str, 
+                    Type:str, 
                     include_fails:int=0,
                     mode:GameMode|str=None,
                     limit:int=None,
@@ -254,9 +253,9 @@ class OsuApi:
         query_params = {}
         
         if include_fails != 0:
-            if type != ScoreTypes.RECENT.value:
+            if Type != ScoreTypes.RECENT.value:
                 raise ValueError("type must be 'recent' in order to set include_fails")
-            elif type != 1:
+            elif include_fails not in (0,1):
                 raise ValueError("include_fails can only be either 1 or 0")
             query_params["include_fails"] = include_fails
 
@@ -280,13 +279,60 @@ class OsuApi:
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
-    # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
-    def user_beatmaps(self):
-        raise Exception("user_beatmaps not implemented.")
+    #? https://osu.ppy.sh/docs/index.html#get-user-beatmaps
+    def user_beatmaps(self,
+                      user_id:int,
+                      Type:BeatmapType|str,
+                      limit:int=None,
+                      offset:str=None)->list[BeatmapPlaycount] | list[Beatmapset]:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+        
+        if not isinstance(user_id, int):
+            raise c_TypeError(param_name="user_id", correct="int", wrong=type(user_id).__name__)
+        if not isinstance(Type, (BeatmapType,str)):
+            raise c_TypeError(param_name="Type", correct="BeatmapType|str", wrong=type(Type).__name__)  
+        if isinstance(Type, BeatmapType):
+            Type = Type.value
+         
+        if limit:
+            if not isinstance(limit, int):
+                raise c_TypeError(param_name="limit", correct="int", wrong=type(limit).__name__)
+            query_params["limit"] = limit
+        
+        if offset:
+            if not isinstance(offset, str):
+                raise c_TypeError(param_name="offset", correct="str", wrong=type(offset).__name__)
+            query_params["offset"] = offset
+            
+        response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/beatmapsets/{Type}", headers=headers, params=query_params)
+        if Type == BeatmapType.MOST_PLAYED.value:
+            return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
+        return parse_obj_as(type_=list[Beatmapset], obj=response.json())
     
     # TODO make user_recent_activity request https://osu.ppy.sh/docs/index.html#get-user-recent-activity
-    def user_recent_activity(self):
-        raise Exception("user_recent_activity not implemented.")
+    def user_recent_activity(self,
+                             user_id:int,limit:int=None,offset:str=None):
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+        
+        if not isinstance(user_id, int):
+            raise c_TypeError(param_name="user_id", correct="int", wrong=type(user_id).__name__)
+         
+        if limit:
+            if not isinstance(limit, int):
+                raise c_TypeError(param_name="limit", correct="int", wrong=type(limit).__name__)
+            query_params["limit"] = limit
+        
+        if offset:
+            if not isinstance(offset, str):
+                raise c_TypeError(param_name="offset", correct="str", wrong=type(offset).__name__)
+            query_params["offset"] = offset
+
+        response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/recent_activity", headers=headers, params=query_params)
+        return True
     
     #? https://osu.ppy.sh/docs/index.html#get-user
     def user(self,
@@ -314,14 +360,26 @@ class OsuApi:
         response = self.Client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
         return parse_obj_as(type_=User, obj=response.json())
 
-    # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
-    def users(self):
-        raise Exception("users not implemented")
+    #? https://osu.ppy.sh/docs/index.html#get-users
+    def users(self, 
+              user_ids:list[int])->Users:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+
+        if not isinstance(user_ids, list):
+            raise c_TypeError(param_name="user_ids", correct="list", wrong=type(user_ids).__name__)
+        if not isinstance(user_ids[0], int):
+            raise c_TypeError(param_name="user_ids[elements]", correct="int", wrong=type(user_ids[0]).__name__)
+        query_params["ids[]"] = user_ids
+
+        response = self.Client.get(url=self.BASE_URL+"/users", headers=headers, params=query_params)
+        return parse_obj_as(type_=Users, obj=response.json())
 
     #? https://osu.ppy.sh/docs/index.html#get-ranking
     def ranking(self,
                 mode:GameMode|str,
-                type:str,
+                Type:str,
                 filter:str="all",
                 country:int=None,
                 cursor:int=None,
@@ -335,7 +393,11 @@ class OsuApi:
             raise c_TypeError(param_name="mode",correct="GameMode|str",wrong=type(mode).__name__)
         if isinstance(mode, GameMode):
             mode = mode.value
-        query_params["mode"] = mode
+
+        if not isinstance(Type, (RankingType, str)):
+            raise c_TypeError(param_name="Type", correct="RankingType|str", wrong=type(Type).__name__)
+        if isinstance(Type, RankingType):
+            Type = Type.value
 
         if filter not in ["all","friends"]:
             raise ValueError("filter must be 'all' or 'friends'")
@@ -369,9 +431,9 @@ class OsuApi:
                 raise ValueError("mode must be 'mania' to use variant")
             query_params["variant"] = variant
 
-        response = self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{type}", headers=headers, params=query_params)
+        response = self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{Type}", headers=headers, params=query_params)
         return parse_obj_as(type_=Rankings, obj=response.json())
     
     # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
     def spotlights(self):
-        raise Exception("spotlights not implemented.")
+        raise NotImplementedError("spotlights not implemented.")
