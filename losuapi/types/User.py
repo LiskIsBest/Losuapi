@@ -89,3 +89,9 @@ class User(UserCompact):
         json_encoders = {
             datetime: str,
 		}
+        
+class Users(BaseModel):
+    users: list[UserCompact]
+    
+    class Config:
+        arbitrary_types_allowed = True
