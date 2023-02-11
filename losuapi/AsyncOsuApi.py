@@ -44,8 +44,7 @@ class AsyncOsuApi:
 
         if not isinstance(beatmap_id, int):
             raise c_TypeError(param_name="beatmap_id",correct="int",wrong=type(beatmap_id).__name__)
-        else:
-            query_params["id"] = beatmap_id
+        query_params["id"] = beatmap_id
 
         if checksum:
             if not isinstance(checksum, str):
@@ -329,7 +328,11 @@ class AsyncOsuApi:
             raise c_TypeError(param_name="mode",correct="GameMode|str",wrong=type(mode).__name__)
         if isinstance(mode, GameMode):
             mode = mode.value
-        query_params["mode"] = mode
+
+        if not isinstance(Type, (RankingType, str)):
+            raise c_TypeError(param_name="Type", correct="RankingType|str", wrong=type(Type).__name__)
+        if isinstance(Type, RankingType):
+            Type = Type.value
 
         if filter not in ["all","friends"]:
             raise ValueError("filter must be 'all' or 'friends'")
