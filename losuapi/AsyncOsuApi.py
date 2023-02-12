@@ -16,11 +16,10 @@ class AsyncOsuApi:
         self.Client = httpx.AsyncClient()
         self.client_id = client_id
         self.client_secret = client_secret
-        self.token_type, self.access_token = self.__get_auth()
-        self.authorization = self.token_type+" "+self.access_token
+        self.authorization = self.__new_auth()
 
     #? https://osu.ppy.sh/docs/index.html#client-credentials-grant
-    def __get_auth(self):
+    def __new_auth(self):
         body_params = {
             "client_id" : self.client_id,
             "client_secret" : self.client_secret,
@@ -31,13 +30,32 @@ class AsyncOsuApi:
         response = httpx.post(url=self.TOKEN_URL, json=body_params, headers=self.base_headers).json()
         if "error" in response:
             raise ConnectionError(f'error: {response["error"]}')
-        return response["token_type"], response["access_token"]
+        return response["token_type"] +" "+ response["access_token"]
+
+    def __del_auth(self):
+        if self.authorization == None:
+            raise ValueError("self.authorization is type<None> or is not set.")
+
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+
+        httpx.delete(url=self.BASE_URL+"/oauth/tokens/current", headers=headers)
+        self.authorization = None
+
+    def __del__(self):
+        self.__del_auth()
+    
+    def __exit__(self):
+        self.__del_auth()
 
     #? https://osu.ppy.sh/docs/index.html#lookup-beatmap
     async def lookup_beatmap(self, 
                        beatmap_id:int, 
                        checksum:str=None, 
                        filename:str=None) -> Beatmap:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -66,6 +84,9 @@ class AsyncOsuApi:
                            user_id:int, 
                            mode:GameMode|str=None, 
                            mods:str=None)->BeatmapUserScore:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -95,6 +116,9 @@ class AsyncOsuApi:
                             beatmap_id:int, 
                             user_id:int, 
                             mode:GameMode|str=None)->Scores:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -118,8 +142,11 @@ class AsyncOsuApi:
     async def beatmap_scores(self, 
                        beatmap_id:int, 
                        mode:GameMode|str=None, 
-                       mods:str=None, 
+                       mods:str=None,
                        type:str=None)->BeatmapScores:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -149,6 +176,9 @@ class AsyncOsuApi:
     #? https://osu.ppy.sh/docs/index.html#get-beatmaps
     async def beatmaps(self, 
                  beatmap_ids:list[int])->Beatmaps:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -165,6 +195,9 @@ class AsyncOsuApi:
     #? https://osu.ppy.sh/docs/index.html#get-beatmap
     async def beatmap(self, 
                 beatmap_id:int)->Beatmap:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
@@ -180,6 +213,9 @@ class AsyncOsuApi:
                            mods:list[str]=None,
                            ruleset: GameMode|str=None,
                            ruleset_id: GameModeInt|int=None)->Attributes:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -214,6 +250,9 @@ class AsyncOsuApi:
                     user_id:int, 
                     limit:int=None, 
                     offset:str=None)->list[KudosuHistory]:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -242,6 +281,9 @@ class AsyncOsuApi:
                     mode:GameMode|str=None,
                     limit:int=None,
                     offset:int=None)->list[Score]:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -279,6 +321,9 @@ class AsyncOsuApi:
                       Type:BeatmapType|str,
                       limit:int=None,
                       offset:str=None)->list[BeatmapPlaycount] | list[Beatmapset]:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -310,6 +355,9 @@ class AsyncOsuApi:
                              user_id:int,
                              limit:int=None,
                              offset:str=None)->list[Event]:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -335,6 +383,9 @@ class AsyncOsuApi:
              username:int|str,
              mode:GameMode|str="",
              key:str="")-> User:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -359,6 +410,9 @@ class AsyncOsuApi:
     #? https://osu.ppy.sh/docs/index.html#get-users
     async def users(self, 
               user_ids:list[int])->Users:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -381,6 +435,9 @@ class AsyncOsuApi:
                 cursor:int=None,
                 spotlight_id:int=None,
                 variant:str=None)->Rankings:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -432,6 +489,9 @@ class AsyncOsuApi:
     
     #? https://osu.ppy.sh/docs/index.html#get-spotlights
     async def spotlights(self)->Spotlights:
+        if not self.authorization:
+            self.authorization = self.__new_auth()
+
         headers = self.base_headers
         headers["Authorization"] = self.authorization
 
