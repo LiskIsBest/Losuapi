@@ -9,7 +9,7 @@ class Spotlight(BaseModel):
     participant_count: int | None
     name: str
     start_date: str
-    type_: str
+    type: str
 
     class Config:
         arbitrary_types_allowed = True
