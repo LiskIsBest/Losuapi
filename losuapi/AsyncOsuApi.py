@@ -296,7 +296,7 @@ class AsyncOsuApi:
                 raise c_TypeError(param_name="offset",correct="int",wrong=type(offset).__name__) 
             query_params["offset"] = offset
 
-        response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
+        response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{Type}", headers=self.base_headers, params=query_params)
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
     #? https://osu.ppy.sh/docs/index.html#get-user-beatmaps
