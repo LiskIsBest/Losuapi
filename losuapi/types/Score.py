@@ -13,6 +13,8 @@ class Score(BaseModel):
     user_id: int
     accuracy: float
     mods: list[str]
+    score: int
+    max_combo: int
     perfect: bool
     statistics: Statistics
     passed: bool
