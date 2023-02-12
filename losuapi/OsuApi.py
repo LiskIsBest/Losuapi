@@ -1,6 +1,6 @@
 import httpx
 from pydantic import parse_obj_as
-from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users
+from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users, Event
 from .utility import c_TypeError
 
 class OsuApi:
@@ -311,9 +311,11 @@ class OsuApi:
             return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
         return parse_obj_as(type_=list[Beatmapset], obj=response.json())
     
-    # TODO make user_recent_activity request https://osu.ppy.sh/docs/index.html#get-user-recent-activity
+    #? https://osu.ppy.sh/docs/index.html#get-user-recent-activity
     def user_recent_activity(self,
-                             user_id:int,limit:int=None,offset:str=None):
+                             user_id:int,
+                             limit:int=None,
+                             offset:str=None)->list[Event]:
         headers = self.base_headers
         headers["Authorization"] = self.authorization
         query_params = {}
@@ -332,7 +334,7 @@ class OsuApi:
             query_params["offset"] = offset
 
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/recent_activity", headers=headers, params=query_params)
-        return True
+        return parse_obj_as(type_=list[Event], obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user
     def user(self,
