@@ -10,3 +10,4 @@ from .Score import Score, BeatmapScores, BeatmapUserScore, Scores
 from .User import User, UserCompact, Users
 from .UserExtras import UserGroup, UserAccountHistory, UserBadge, UserMonthlyPlaycount, UserAchievement, UserProfileCustomization
 from .UserStatistics import UserStatistics, UserStatisticsRulesets
+from .Event import Event
