@@ -14,7 +14,7 @@ setup(
     keywords=["python","osu","api","wrapper"],
     author="Darien Moore",
     author_email="LiskIsBest@gmail.com",
-    url="https://github.com/LiskIsBest/Losuapi",
+    url="https://github.com/LiskIsBest/Losuapi/tree/v"+VERSION,
     download_url="https://github.com/LiskIsBest/Losuapi/tarball/v"+VERSION,
     license="GPLv3",
     packages=find_packages(),
