@@ -1,6 +1,6 @@
 import httpx
 from pydantic import parse_obj_as
-from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory
+from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, Event, Users, Beatmapset, BeatmapPlaycount, BeatmapType
 from .utility import c_TypeError
 
 class AsyncOsuApi:
@@ -273,13 +273,62 @@ class AsyncOsuApi:
         response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{type}", headers=self.base_headers, params=query_params)
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
-    # TODO make user_beatmaps request https://osu.ppy.sh/docs/index.html#get-user-beatmaps
-    async def user_beatmaps(self):
-        raise Exception("user_beatmaps not implemented.")
+    #? https://osu.ppy.sh/docs/index.html#get-user-beatmaps
+    async def user_beatmaps(self,
+                      user_id:int,
+                      Type:BeatmapType|str,
+                      limit:int=None,
+                      offset:str=None)->list[BeatmapPlaycount] | list[Beatmapset]:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+        
+        if not isinstance(user_id, int):
+            raise c_TypeError(param_name="user_id", correct="int", wrong=type(user_id).__name__)
+        if not isinstance(Type, (BeatmapType,str)):
+            raise c_TypeError(param_name="Type", correct="BeatmapType|str", wrong=type(Type).__name__)  
+        if isinstance(Type, BeatmapType):
+            Type = Type.value
+         
+        if limit:
+            if not isinstance(limit, int):
+                raise c_TypeError(param_name="limit", correct="int", wrong=type(limit).__name__)
+            query_params["limit"] = limit
+        
+        if offset:
+            if not isinstance(offset, str):
+                raise c_TypeError(param_name="offset", correct="str", wrong=type(offset).__name__)
+            query_params["offset"] = offset
+            
+        response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/beatmapsets/{Type}", headers=headers, params=query_params)
+        if Type == BeatmapType.MOST_PLAYED.value:
+            return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
+        return parse_obj_as(type_=list[Beatmapset], obj=response.json())
     
-    # TODO make user_recent_activity request https://osu.ppy.sh/docs/index.html#get-user-recent-activity
-    async def user_recent_activity(self):
-        raise Exception("user_recent_activity not implemented.")
+    #? https://osu.ppy.sh/docs/index.html#get-user-recent-activity
+    async def user_recent_activity(self,
+                             user_id:int,
+                             limit:int=None,
+                             offset:str=None)->list[Event]:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+        
+        if not isinstance(user_id, int):
+            raise c_TypeError(param_name="user_id", correct="int", wrong=type(user_id).__name__)
+         
+        if limit:
+            if not isinstance(limit, int):
+                raise c_TypeError(param_name="limit", correct="int", wrong=type(limit).__name__)
+            query_params["limit"] = limit
+        
+        if offset:
+            if not isinstance(offset, str):
+                raise c_TypeError(param_name="offset", correct="str", wrong=type(offset).__name__)
+            query_params["offset"] = offset
+
+        response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/recent_activity", headers=headers, params=query_params)
+        return parse_obj_as(type_=list[Event], obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user
     async def user(self,
@@ -307,9 +356,21 @@ class AsyncOsuApi:
         response = await self.Client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=headers,params=query_params)
         return parse_obj_as(type_=User, obj=response.json())
 
-    # TODO make users request https://osu.ppy.sh/docs/index.html#get-users
-    async def users(self):
-        raise Exception("users not implemented")
+    #? https://osu.ppy.sh/docs/index.html#get-users
+    async def users(self, 
+              user_ids:list[int])->Users:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+        query_params = {}
+
+        if not isinstance(user_ids, list):
+            raise c_TypeError(param_name="user_ids", correct="list", wrong=type(user_ids).__name__)
+        if not isinstance(user_ids[0], int):
+            raise c_TypeError(param_name="user_ids[elements]", correct="int", wrong=type(user_ids[0]).__name__)
+        query_params["ids[]"] = user_ids
+
+        response = await self.Client.get(url=self.BASE_URL+"/users", headers=headers, params=query_params)
+        return parse_obj_as(type_=Users, obj=response.json())
 
     #? https://osu.ppy.sh/docs/index.html#get-ranking
     async def ranking(self,
