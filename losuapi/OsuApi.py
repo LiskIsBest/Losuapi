@@ -1,6 +1,6 @@
 import httpx
 from pydantic import parse_obj_as
-from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users, Event
+from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users, Event, Spotlights
 from .utility import c_TypeError
 
 class OsuApi:
@@ -436,6 +436,10 @@ class OsuApi:
         response = self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{Type}", headers=headers, params=query_params)
         return parse_obj_as(type_=Rankings, obj=response.json())
     
-    # TODO make spotlights request https://osu.ppy.sh/docs/index.html#get-spotlights
-    def spotlights(self):
-        raise NotImplementedError("spotlights not implemented.")
+    #? https://osu.ppy.sh/docs/index.html#get-spotlights
+    def spotlights(self)->Spotlights:
+        headers = self.base_headers
+        headers["Authorization"] = self.authorization
+
+        response = self.Client.get(url=self.BASE_URL+"/spotlights", headers=headers)
+        return parse_obj_as(type_=Spotlights, obj=response.json())
