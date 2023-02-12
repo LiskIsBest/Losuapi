@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 with open("README.md", "r") as readme:
     long_description = readme.read()
 
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 
 setup(
     name="losuapi",
