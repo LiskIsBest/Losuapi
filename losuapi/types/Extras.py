@@ -97,3 +97,7 @@ class Post(BaseModel):
 class Failtimes(BaseModel):
     exit: list[int] | None
     fail: list[int] | None
+    
+class Achievement(BaseModel):
+	achieved_at: str
+	achievement_id: int
