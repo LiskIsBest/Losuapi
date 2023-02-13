@@ -19,8 +19,15 @@ class OsuApi:
         self.client_secret = client_secret
         self.authorization = self.__new_auth()
 
-    #? https://osu.ppy.sh/docs/index.html#client-credentials-grant
     def __new_auth(self):
+        """ 
+        returns string in the format "Bearer {{ token }}".
+        
+        Uses the client_id and client_secret set by user
+        to retrieve an auth token for the Osu! api.
+        
+        Api documentation: https://osu.ppy.sh/docs/index.html#client-credentials-grant
+        """
         body_params = {
             "client_id" : self.client_id,
             "client_secret" : self.client_secret,
@@ -34,6 +41,13 @@ class OsuApi:
         return response["token_type"] +" "+ response["access_token"]
 
     def __del_auth(self):
+        """
+        Sets self.authorization to None.
+        
+        Revokes authentication for current token.
+        
+        Api documentation: https://osu.ppy.sh/docs/index.html#revoke-current-token
+        """
         if self.authorization == None:
             raise ValueError("self.authorization is type<None> or is not set.")
 
@@ -44,14 +58,16 @@ class OsuApi:
         self.authorization = None
 
     def __del__(self):
-        self.__del_auth()
-        self.Client.close()
-    
-    def __exit__(self):
+        """
+        Runs self.__del_auth and httpx.Client.Close on garbage collection.
+        """
         self.__del_auth()
         self.Client.close()
 
     def verify_auth(func):
+        """
+        Verifies that Auth token exists and adds it to a headers dictionary
+        """
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self.authorization:
@@ -68,6 +84,18 @@ class OsuApi:
                        checksum:str=None, 
                        filename:str=None,
                        **kwargs) -> Beatmap:
+        """
+        Returns losuapi.types.Beatmap object.
+        
+        Api documentation: https://osu.ppy.sh/docs/index.html#lookup-beatmap
+        
+        parameters:
+            beatmap_id: int - id of Osu! beatmap
+            checksum: str - Osu! beatmap checksum value
+            filename: str - filename to lookup
+        returns:
+            losuapi.types.Beatmap
+        """
         query_params = {}
 
         if not isinstance(beatmap_id, int):
