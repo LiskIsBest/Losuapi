@@ -45,9 +45,6 @@ class AsyncOsuApi:
 
     def __del__(self):
         self.__del_auth()
-    
-    def __exit__(self):
-        self.__del_auth()
 
     def verify_auth(func):
         @wraps(func)
