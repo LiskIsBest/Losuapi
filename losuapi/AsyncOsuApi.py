@@ -84,6 +84,8 @@ class AsyncOsuApi:
 
 
         response = await self.Client.get(url=self.BASE_URL+"/beatmaps/lookup", params=query_params, headers=kwargs["headers"])
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-score
@@ -114,6 +116,8 @@ class AsyncOsuApi:
             query_params["mods"] = mods
 
         response = await self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=BeatmapUserScore, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-scores
@@ -138,6 +142,8 @@ class AsyncOsuApi:
             query_params["mode"] = mode
         
         response = await self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Scores, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap-scores
@@ -170,6 +176,8 @@ class AsyncOsuApi:
                 raise c_TypeError(param_name="type",correct="str",wrong=type(type).__name__)
             
         response = await self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=BeatmapScores, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmaps
@@ -186,6 +194,8 @@ class AsyncOsuApi:
         query_params["ids[]"] = beatmap_ids
 
         response = await self.Client.get(url=self.BASE_URL+"/beatmaps", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Beatmaps, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap
@@ -198,6 +208,8 @@ class AsyncOsuApi:
             raise c_TypeError(param_name="beatmap_id", correct="int", wrong=type(beatmap_id).__name__)
         
         response = await self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}", headers=kwargs["headers"])
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-beatmap-attributes
@@ -233,6 +245,8 @@ class AsyncOsuApi:
             query_params["ruleset_id"] = ruleset_id
 
         response = await self.Client.post(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/attributes", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Attributes, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user-kudosu
@@ -258,6 +272,8 @@ class AsyncOsuApi:
             query_params["offset"] = offset
             
         response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/kudosu", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=list[KudosuHistory], obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user-scores
@@ -297,6 +313,8 @@ class AsyncOsuApi:
             query_params["offset"] = offset
 
         response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{Type}", headers=self.base_headers, params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
     #? https://osu.ppy.sh/docs/index.html#get-user-beatmaps
@@ -327,6 +345,8 @@ class AsyncOsuApi:
             query_params["offset"] = offset
             
         response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/beatmapsets/{Type}", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         if Type == BeatmapType.MOST_PLAYED.value:
             return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
         return parse_obj_as(type_=list[Beatmapset], obj=response.json())
@@ -354,6 +374,8 @@ class AsyncOsuApi:
             query_params["offset"] = offset
 
         response = await self.Client.get(url=self.BASE_URL+f"/users/{user_id}/recent_activity", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=list[Event], obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-user
@@ -380,6 +402,8 @@ class AsyncOsuApi:
             query_params["key"] = key
 
         response = await self.Client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=kwargs["headers"],params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=User, obj=response.json())
 
     #? https://osu.ppy.sh/docs/index.html#get-users
@@ -396,6 +420,8 @@ class AsyncOsuApi:
         query_params["ids[]"] = user_ids
 
         response = await self.Client.get(url=self.BASE_URL+"/users", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Users, obj=response.json())
 
     #? https://osu.ppy.sh/docs/index.html#get-ranking
@@ -454,6 +480,8 @@ class AsyncOsuApi:
             query_params["variant"] = variant
 
         response = await self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{type}", headers=kwargs["headers"], params=query_params)
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Rankings, obj=response.json())
     
     #? https://osu.ppy.sh/docs/index.html#get-spotlights
@@ -461,4 +489,6 @@ class AsyncOsuApi:
     async def spotlights(self, **kwargs)->Spotlights:
 
         response = await self.Client.get(url=self.BASE_URL+"/spotlights", headers=kwargs["headers"])
+        if "error" in response.json():
+            return None
         return parse_obj_as(type_=Spotlights, obj=response.json())
