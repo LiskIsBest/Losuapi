@@ -1,7 +1,7 @@
 from functools import wraps
 import httpx
 from pydantic import parse_obj_as
-from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, UserCompact, Users, Event, Spotlights
+from .types import Beatmap, Beatmaps, Rankings, User, Scores, Score, GameMode, GameModeInt, RankingType, ScoreTypes, BeatmapUserScore, BeatmapScores, Attributes, KudosuHistory, BeatmapType, BeatmapPlaycount, Beatmapset, Users, Event, Spotlights
 from .utility import c_TypeError
 
 class OsuApi:
