@@ -90,7 +90,7 @@ class OsuApi:
 
 
         response = self.Client.get(url=self.BASE_URL+"/beatmaps/lookup", params=query_params, headers=kwargs["headers"])
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
@@ -122,7 +122,7 @@ class OsuApi:
             query_params["mods"] = mods
 
         response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=BeatmapUserScore, obj=response.json())
     
@@ -148,7 +148,7 @@ class OsuApi:
             query_params["mode"] = mode
         
         response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Scores, obj=response.json())
     
@@ -182,7 +182,7 @@ class OsuApi:
                 raise c_TypeError(param_name="Type",correct="str",wrong=type(Type).__name__)
             
         response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/scores", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=BeatmapScores, obj=response.json())
     
@@ -200,7 +200,7 @@ class OsuApi:
         query_params["ids[]"] = beatmap_ids
 
         response = self.Client.get(url=self.BASE_URL+"/beatmaps", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Beatmaps, obj=response.json())
     
@@ -214,7 +214,7 @@ class OsuApi:
             raise c_TypeError(param_name="beatmap_id", correct="int", wrong=type(beatmap_id).__name__)
         
         response = self.Client.get(url=self.BASE_URL+f"/beatmaps/{beatmap_id}", headers=kwargs["headers"])
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Beatmap, obj=response.json())
     
@@ -251,7 +251,7 @@ class OsuApi:
             query_params["ruleset_id"] = ruleset_id
 
         response = self.Client.post(url=self.BASE_URL+f"/beatmaps/{beatmap_id}/attributes", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Attributes, obj=response.json())
     
@@ -278,7 +278,7 @@ class OsuApi:
             query_params["offset"] = offset
             
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/kudosu", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=list[KudosuHistory], obj=response.json())
     
@@ -319,7 +319,7 @@ class OsuApi:
             query_params["offset"] = offset
 
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/scores/{Type}", headers=self.base_headers, params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=list[Score], obj=response.json())
                 
@@ -351,7 +351,7 @@ class OsuApi:
             query_params["offset"] = offset
             
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/beatmapsets/{Type}", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         if Type == BeatmapType.MOST_PLAYED.value:
             return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
@@ -380,7 +380,7 @@ class OsuApi:
             query_params["offset"] = offset
 
         response = self.Client.get(url=self.BASE_URL+f"/users/{user_id}/recent_activity", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=list[Event], obj=response.json())
     
@@ -408,7 +408,7 @@ class OsuApi:
             query_params["key"] = key
 
         response = self.Client.get(url=self.BASE_URL+f"/users/{username}/{mode}", headers=kwargs["headers"],params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=User, obj=response.json())
 
@@ -426,7 +426,7 @@ class OsuApi:
         query_params["ids[]"] = user_ids
 
         response = self.Client.get(url=self.BASE_URL+"/users", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Users, obj=response.json())
 
@@ -486,7 +486,7 @@ class OsuApi:
             query_params["variant"] = variant
 
         response = self.Client.get(url=self.BASE_URL+f"/rankings/{mode}/{Type}", headers=kwargs["headers"], params=query_params)
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Rankings, obj=response.json())
     
@@ -495,6 +495,6 @@ class OsuApi:
     def spotlights(self, **kwargs)->Spotlights:
 
         response = self.Client.get(url=self.BASE_URL+"/spotlights", headers=kwargs["headers"])
-        if "error" in response.json():
+        if "error" in (res := response.json()) or "authentication" in res:
             return None
         return parse_obj_as(type_=Spotlights, obj=response.json())
