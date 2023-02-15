@@ -33,19 +33,6 @@ class AsyncOsuApi:
             raise ConnectionError(f'error: {response["error"]}')
         return response["token_type"] +" "+ response["access_token"]
 
-    def __del_auth(self):
-        if self.authorization == None:
-            raise ValueError("self.authorization is type<None> or is not set.")
-
-        headers = self.base_headers
-        headers["Authorization"] = self.authorization
-
-        httpx.delete(url=self.BASE_URL+"/oauth/tokens/current", headers=headers)
-        self.authorization = None
-
-    def __del__(self):
-        self.__del_auth()
-
     def verify_auth(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):

@@ -40,30 +40,6 @@ class OsuApi:
             raise ConnectionError(f'error: {response["error"]}')
         return response["token_type"] +" "+ response["access_token"]
 
-    def __del_auth(self):
-        """
-        Sets self.authorization to None.
-        
-        Revokes authentication for current token.
-        
-        Api documentation: https://osu.ppy.sh/docs/index.html#revoke-current-token
-        """
-        if self.authorization == None:
-            raise ValueError("self.authorization is type<None> or is not set.")
-
-        headers = self.base_headers
-        headers["Authorization"] = self.authorization
-
-        self.Client.delete(url=self.BASE_URL+"/oauth/tokens/current", headers=headers)
-        self.authorization = None
-
-    def __del__(self):
-        """
-        Runs self.__del_auth and httpx.Client.Close on garbage collection.
-        """
-        self.__del_auth()
-        self.Client.close()
-
     def verify_auth(func):
         """
         Verifies that Auth token exists and adds it to a headers dictionary
