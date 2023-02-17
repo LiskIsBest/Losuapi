@@ -5,6 +5,7 @@ from .Extras import Availability, Nominations, Hype
 from .User import UserCompact
 from .Covers import Covers
 
+
 # https://osu.ppy.sh/docs/index.html#beatmapsetcompact
 class BeatmapsetCompact(BaseModel):
     artist: str
@@ -22,7 +23,7 @@ class BeatmapsetCompact(BaseModel):
     title_unicode: str
     user_id: int
     video: bool
-    
+
     # optionals
     beatmaps: list[Any] | None
     converts: Any | None
@@ -38,10 +39,11 @@ class BeatmapsetCompact(BaseModel):
     recent_favourites: Any | None
     related_users: Any | None
     user: UserCompact | None
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
+
 
 # https://osu.ppy.sh/docs/index.html#beatmapset
 class Beatmapset(BeatmapsetCompact):
@@ -67,4 +69,4 @@ class Beatmapset(BeatmapsetCompact):
         arbitrary_types_allowed = True
         json_encoders = {
             datetime: str,
-		}
+        }

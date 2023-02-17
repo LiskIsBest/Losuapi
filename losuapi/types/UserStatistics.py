@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from .Extras import Level, GradeCounts
 
+
 # https://osu.ppy.sh/docs/index.html#userstatistics
 class UserStatistics(BaseModel):
     grade_counts: GradeCounts
@@ -20,6 +21,7 @@ class UserStatistics(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         use_enum_values = True
+
 
 class UserStatisticsRulesets(BaseModel):
     osu: UserStatistics | None

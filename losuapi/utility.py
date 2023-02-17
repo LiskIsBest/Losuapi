@@ -1,7 +1,7 @@
-def c_TypeError(param_name: str, correct: str, wrong: str)-> TypeError:
+def c_TypeError(param_name: str, correct: str, wrong: str) -> TypeError:
     """
     Returns TypeError built from given params
-    
+
     parameters:
         param_name: str - name of parameter
         correct: str - correct expected data type

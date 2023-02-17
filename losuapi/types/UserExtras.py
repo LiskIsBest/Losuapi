@@ -1,11 +1,20 @@
 from datetime import datetime
 from pydantic import BaseModel
-from .Enums import UserAcountHistoryTypes, GameMode, BeatmapsetDownload, UserListFilters, UserListSorts, UserListViews
+from .Enums import (
+    UserAcountHistoryTypes,
+    GameMode,
+    BeatmapsetDownload,
+    UserListFilters,
+    UserListSorts,
+    UserListViews,
+)
+
 
 # https://osu.ppy.sh/docs/index.html#usergroup
 class UserGroup(BaseModel):
     playmodes: list[GameMode] | None
-    
+
+
 # https://osu.ppy.sh/docs/index.html#usercompact-useraccounthistory
 class UserAccountHistory(BaseModel):
     description: str | None
@@ -14,12 +23,13 @@ class UserAccountHistory(BaseModel):
     permanent: bool
     timestamp: datetime
     type: UserAcountHistoryTypes
-    
+
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {
             datetime: str,
         }
+
 
 # https://osu.ppy.sh/docs/index.html#usercompact-userbadge
 class UserBadge(BaseModel):
@@ -27,20 +37,23 @@ class UserBadge(BaseModel):
     description: str
     image_url: str
     url: str
-    
+
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {
-            datetime: str, 
+            datetime: str,
         }
-    
+
+
 class UserMonthlyPlaycount(BaseModel):
     start_date: str
     count: int
 
+
 class UserAchievement(BaseModel):
     achieved_at: str
     achievement_id: int | None
+
 
 class UserProfileCustomization(BaseModel):
     audio_autoplay: bool | None

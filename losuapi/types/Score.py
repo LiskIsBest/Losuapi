@@ -6,6 +6,7 @@ from .Beatmapset import BeatmapsetCompact
 from .Extras import Weight, ScoreMatchInfo, Statistics
 from .Enums import GameModeInt
 
+
 # https://osu.ppy.sh/docs/index.html#score
 class Score(BaseModel):
     id: int
@@ -24,7 +25,7 @@ class Score(BaseModel):
     mode: str
     mode_int: GameModeInt
     replay: bool
-    
+
     # optionals
     beatmap: BeatmapCompact | None
     beatmapset: BeatmapsetCompact | None
@@ -40,13 +41,15 @@ class Score(BaseModel):
         use_enum_values = True
         json_encoders = {
             datetime: str,
-		}
-        
+        }
+
+
 # https://osu.ppy.sh/docs/index.html#beatmapuserscore
 class BeatmapUserScore(BaseModel):
     position: int
     score: Score
-    
+
+
 # https://osu.ppy.sh/docs/index.html#beatmapscores
 class BeatmapScores(BaseModel):
     scores: list[Score]
@@ -54,9 +57,10 @@ class BeatmapScores(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        
+
+
 class Scores(BaseModel):
     scores: list[Score]
-    
+
     class Config:
         arbitrary_types_allowed = True

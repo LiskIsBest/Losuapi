@@ -1,10 +1,27 @@
 from datetime import datetime
 from typing import Any
 from pydantic import BaseModel, Field
-from .UserExtras import UserAccountHistory, UserBadge, UserGroup, UserMonthlyPlaycount, UserAchievement, UserProfileCustomization
+from .UserExtras import (
+    UserAccountHistory,
+    UserBadge,
+    UserGroup,
+    UserMonthlyPlaycount,
+    UserAchievement,
+    UserProfileCustomization,
+)
 from .UserStatistics import UserStatistics, UserStatisticsRulesets
-from .Extras import ProfileBanner, Country, Cover, Page, RankHighest, RankHistory, ReplaysWatchedCount, Kudosu
+from .Extras import (
+    ProfileBanner,
+    Country,
+    Cover,
+    Page,
+    RankHighest,
+    RankHistory,
+    ReplaysWatchedCount,
+    Kudosu,
+)
 from .Enums import GameMode
+
 
 # https://osu.ppy.sh/docs/index.html#usercompact
 class UserCompact(BaseModel):
@@ -60,7 +77,8 @@ class UserCompact(BaseModel):
         use_enum_values = True
         json_encoders = {
             datetime: str,
-		}
+        }
+
 
 # https://osu.ppy.sh/docs/index.html#user
 class User(UserCompact):
@@ -88,10 +106,11 @@ class User(UserCompact):
         use_enum_values = True
         json_encoders = {
             datetime: str,
-		}
-        
+        }
+
+
 class Users(BaseModel):
     users: list[UserCompact]
-    
+
     class Config:
         arbitrary_types_allowed = True

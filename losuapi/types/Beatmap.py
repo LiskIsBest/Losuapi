@@ -4,6 +4,7 @@ from .Enums import GameMode, GameModeInt
 from .Beatmapset import Beatmapset, BeatmapsetCompact
 from .Extras import Failtimes
 
+
 # https://osu.ppy.sh/docs/index.html#beatmapcompact
 class BeatmapCompact(BaseModel):
     beatmapset_id: int
@@ -14,9 +15,9 @@ class BeatmapCompact(BaseModel):
     total_length: int
     user_id: int
     version: str
-    
+
     # optionals
-    beatmapset: Beatmapset|BeatmapsetCompact | None
+    beatmapset: Beatmapset | BeatmapsetCompact | None
     checksum: str | None
     failtimes: Failtimes | None
     max_combo: int | None
@@ -24,7 +25,8 @@ class BeatmapCompact(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         use_enum_values = True
-    
+
+
 # https://osu.ppy.sh/docs/index.html#beatmap
 class Beatmap(BeatmapCompact):
     accuracy: float
@@ -53,18 +55,20 @@ class Beatmap(BeatmapCompact):
         json_encoders = {
             datetime: str,
         }
-        
+
+
 class Beatmaps(BaseModel):
     beatmaps: list[Beatmap]
-    
+
     class Config:
         arbitrary_types_allowed = True
-        
+
+
 class BeatmapPlaycount(BaseModel):
     beatmap_id: int
     beatmap: BeatmapCompact | None
     beatmapset: BeatmapsetCompact | None
     count: int
-    
+
     class Config:
         arbitrary_types_allowed = True

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 # https://osu.ppy.sh/docs/index.html#beatmapdifficultyattributes
 class DifficultyAttributes(BaseModel):
     max_combo: int
@@ -18,9 +19,10 @@ class DifficultyAttributes(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
-        
+
+
 class Attributes(BaseModel):
     attributes: DifficultyAttributes
-    
+
     class Config:
         arbitrary_types_allowed = True

@@ -11,15 +11,12 @@ setup(
     description="Python wrapper for the Osu apiv2.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    keywords=["python","osu","api","wrapper"],
+    keywords=["python", "osu", "api", "wrapper"],
     author="Darien Moore",
     author_email="LiskIsBest@gmail.com",
-    url="https://github.com/LiskIsBest/Losuapi/tree/v"+VERSION,
-    download_url="https://github.com/LiskIsBest/Losuapi/tarball/v"+VERSION,
+    url="https://github.com/LiskIsBest/Losuapi/tree/v" + VERSION,
+    download_url="https://github.com/LiskIsBest/Losuapi/tarball/v" + VERSION,
     license="GPLv3",
     packages=find_packages(),
-    install_requires=[
-		"httpx",
-        "pydantic"
-	]
+    install_requires=["httpx", "pydantic"],
 )

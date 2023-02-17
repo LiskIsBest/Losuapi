@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 # https://osu.ppy.sh/docs/index.html#beatmapsetcompact-covers
 class Covers(BaseModel):
     cover: str
@@ -10,7 +11,7 @@ class Covers(BaseModel):
     cover_list2x: str = Field(alias="list@2x")
     slimcover: str
     slimcover: str = Field(alias="slimcover@2x")
-    
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True

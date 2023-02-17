@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from .Beatmapset import Beatmapset
 from .UserStatistics import UserStatistics
 
+
 class Spotlight(BaseModel):
     end_date: str
     id: int
@@ -14,14 +15,17 @@ class Spotlight(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+
 class Spotlights(BaseModel):
     spotlights: list[Spotlight]
 
     class Config:
         arbitrary_types_allowed = True
 
+
 class Cursor(BaseModel):
     page: int
+
 
 class Rankings(BaseModel):
     beatmapsets: list[Beatmapset] | None
