@@ -1,4 +1,5 @@
 from functools import wraps
+import re
 import httpx
 from pydantic import parse_obj_as
 from .types import (
@@ -537,6 +538,8 @@ class OsuApi:
             raise c_TypeError(
                 param_name="username", correct="int|str", wrong=type(username).__name__
             )
+        if re.match(pattern=r"^\s*$", string=str(username)):
+            raise ValueError("param<username> cannot be blank")
 
         if mode != "":
             if not isinstance(mode, (GameMode, str)):
