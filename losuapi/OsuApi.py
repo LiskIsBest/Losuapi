@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Type, TypeVar
 import re
 import httpx
 from pydantic import parse_obj_as
@@ -9,6 +10,7 @@ from .types import (
     User,
     Scores,
     Score,
+    ScoreTypes,
     GameMode,
     GameModeInt,
     RankingType,
@@ -26,6 +28,8 @@ from .types import (
 )
 from .utility import c_TypeError
 
+T = TypeVar("T")
+
 
 class OsuApi:
     base_headers = {
@@ -38,8 +42,9 @@ class OsuApi:
 
     def __init__(self, client_id: int, client_secret: str) -> None:
         self.Client = httpx.Client(timeout=None)
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self.AsyncClient = httpx.AsyncClient(timeout=None)
+        self.__client_id = client_id
+        self.__client_secret = client_secret
         self.authorization = self.__new_auth()
 
     def __new_auth(self):
@@ -52,8 +57,8 @@ class OsuApi:
         Api documentation: https://osu.ppy.sh/docs/index.html#client-credentials-grant
         """
         body_params = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
+            "client_id": self.__client_id,
+            "client_secret": self.__client_secret,
             "grant_type": "client_credentials",
             "scope": "public",
         }
@@ -76,27 +81,47 @@ class OsuApi:
                 self.authorization = self.__new_auth()
             headers = self.base_headers
             headers["Authorization"] = self.authorization
-            return func(self, headers=headers, *args, **kwargs)
+            return func(self, headers, *args, **kwargs)
+
+        return wrapper
+
+    def request(Type: Type[T], func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            data = func(self, *args, **kwargs)
+            response = self.Client.request(
+                method=data["method"],
+                url=data["url"],
+                params=data["params"],
+                headers=data["headers"],
+            )
+            if "error" in (res := response.json()) or "authentication" in res:
+                return None
+            return parse_obj_as(type_=Type, obj=response.json())
+
+        return wrapper
+
+    def async_request(Type: Type[T], func):
+        @wraps(func)
+        async def wrapper(self, *args, **kwargs):
+            data = func(self, *args, **kwargs)
+            response = await self.AsyncClient.request(
+                method=data["method"],
+                url=data["url"],
+                params=data["params"],
+                headers=data["headers"],
+            )
+            if "error" in (res := response.json()) or "authentication" in res:
+                return None
+            return parse_obj_as(type_=Type, obj=response.json())
 
         return wrapper
 
     # ? https://osu.ppy.sh/docs/index.html#lookup-beatmap
     @verify_auth
-    def lookup_beatmap(
-        self, beatmap_id: int, checksum: str = None, filename: str = None, **kwargs
+    def __base_LookupBeatmap(
+        self, headers, beatmap_id: int, checksum: str = None, filename: str = None
     ) -> Beatmap:
-        """
-        Returns losuapi.types.Beatmap object.
-
-        Api documentation: https://osu.ppy.sh/docs/index.html#lookup-beatmap
-
-        parameters:
-            beatmap_id: int - id of Osu! beatmap
-            checksum: str - Osu! beatmap checksum value
-            filename: str - filename to lookup
-        returns:
-            losuapi.types.Beatmap
-        """
         query_params = {}
 
         if not isinstance(beatmap_id, int):
@@ -119,24 +144,22 @@ class OsuApi:
                 )
             query_params["filename"] = filename
 
-        response = self.Client.get(
-            url=self.BASE_URL + "/beatmaps/lookup",
-            params=query_params,
-            headers=kwargs["headers"],
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Beatmap, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + "/beatmaps/lookup",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-score
     @verify_auth
-    def user_beatmap_score(
+    def __base_UserBeatmapScore(
         self,
+        headers,
         beatmap_id: int,
         user_id: int,
         mode: GameMode | str = None,
         mods: str = None,
-        **kwargs,
     ) -> BeatmapUserScore:
         query_params = {}
 
@@ -165,19 +188,17 @@ class OsuApi:
                 )
             query_params["mods"] = mods
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/beatmaps/{beatmap_id}/scores/users/{user_id}",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=BeatmapUserScore, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/beatmaps/{beatmap_id}/scores/users/{user_id}",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-a-user-beatmap-scores
     @verify_auth
-    def user_beatmap_scores(
-        self, beatmap_id: int, user_id: int, mode: GameMode | str = None, **kwargs
+    def __base_UserBeatmapScores(
+        self, headers, beatmap_id: int, user_id: int, mode: GameMode | str = None
     ) -> Scores:
         query_params = {}
 
@@ -199,29 +220,29 @@ class OsuApi:
                 mode = mode.value
             query_params["mode"] = mode
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Scores, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/beatmaps/{beatmap_id}/scores/users/{user_id}/all",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-beatmap-scores
     @verify_auth
-    def beatmap_scores(
+    def __base_BeatmapScores(
         self,
+        headers,
         beatmap_id: int,
         mode: GameMode | str = None,
         mods: str = None,
         Type: str = None,
-        **kwargs,
     ) -> BeatmapScores:
         query_params = {}
 
         if not isinstance(beatmap_id, int):
-            raise TypeError("param:beatmap_id must be type<int>")
+            raise c_TypeError(
+                param_name="beatmap_id", correct="int", wrong=type(beatmap_id).__name__
+            )
 
         if mode:
             if not isinstance(mode, (GameMode, str)):
@@ -239,24 +260,22 @@ class OsuApi:
                 )
             query_params["mods"] = mods
 
-        if type:
+        if Type:
             if not isinstance(Type, str):
                 raise c_TypeError(
                     param_name="Type", correct="str", wrong=type(Type).__name__
                 )
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/beatmaps/{beatmap_id}/scores",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=BeatmapScores, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/beatmaps/{beatmap_id}/scores",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-beatmaps
     @verify_auth
-    def beatmaps(self, beatmap_ids: list[int], **kwargs) -> Beatmaps:
+    def __base_Beatmaps(self, headers, beatmap_ids: list[int]) -> Beatmaps:
         query_params = {}
 
         if not isinstance(beatmap_ids, list):
@@ -273,39 +292,37 @@ class OsuApi:
             )
         query_params["ids[]"] = beatmap_ids
 
-        response = self.Client.get(
-            url=self.BASE_URL + "/beatmaps",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Beatmaps, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + "/beatmaps",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-beatmap
     @verify_auth
-    def beatmap(self, beatmap_id: int, **kwargs) -> Beatmap:
+    def __base_Beatmap(self, headers, beatmap_id: int) -> Beatmap:
         if not isinstance(beatmap_id, int):
             raise c_TypeError(
                 param_name="beatmap_id", correct="int", wrong=type(beatmap_id).__name__
             )
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/beatmaps/{beatmap_id}", headers=kwargs["headers"]
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Beatmap, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/beatmaps/{beatmap_id}",
+            "params": {},
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-beatmap-attributes
     @verify_auth
-    def beatmap_attributes(
+    def __base_BeatmapAttributes(
         self,
+        headers,
         beatmap_id: int,
         mods: list[str] = None,
         ruleset: GameMode | str = None,
         ruleset_id: GameModeInt | int = None,
-        **kwargs,
     ) -> Attributes:
         query_params = {}
 
@@ -347,19 +364,17 @@ class OsuApi:
                 )
             query_params["ruleset_id"] = ruleset_id
 
-        response = self.Client.post(
-            url=self.BASE_URL + f"/beatmaps/{beatmap_id}/attributes",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Attributes, obj=response.json())
+        return {
+            "method": "POST",
+            "url": self.BASE_URL + f"/beatmaps/{beatmap_id}/attributes",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-user-kudosu
     @verify_auth
-    def user_kudosu(
-        self, user_id: int, limit: int = None, offset: str = None, **kwargs
+    def __base_UserKudosu(
+        self, headers, user_id: int, limit: int = None, offset: str = None
     ) -> list[KudosuHistory]:
         query_params = {}
 
@@ -382,34 +397,46 @@ class OsuApi:
                 )
             query_params["offset"] = offset
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/users/{user_id}/kudosu",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=list[KudosuHistory], obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/users/{user_id}/kudosu",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-user-scores
     @verify_auth
-    def user_scores(
+    def __base_UserScores(
         self,
+        headers,
         user_id: int,
-        Type: str,
+        Type: ScoreTypes | str,
         include_fails: int = 0,
         mode: GameMode | str = None,
         limit: int = None,
         offset: int = None,
-        **kwargs,
     ) -> list[Score]:
         query_params = {}
 
+        if not isinstance(user_id, int):
+            raise c_TypeError(
+                param_name="user_id", correct="int", wrong=type(user_id).__name__
+            )
+
+        if not isinstance(Type, (ScoreTypes, str)):
+            raise c_TypeError(
+                param_name="Type", correct="ScoreTypes|str", wrong=type(Type).__name__
+            )
+        if Type not in ScoreTypes.list():
+            raise ValueError("param<Type> must be 'best', 'firsts', or 'recent'")
+
         if include_fails != 0:
             if Type != ScoreTypes.RECENT.value:
-                raise ValueError("type must be 'recent' in order to set include_fails")
+                raise ValueError(
+                    "param<Type> must be 'recent' in order to set include_fails"
+                )
             elif include_fails not in (0, 1):
-                raise ValueError("include_fails can only be either 1 or 0")
+                raise ValueError("param<include_fails> can only be either 1 or 0")
             query_params["include_fails"] = include_fails
 
         if mode:
@@ -435,24 +462,22 @@ class OsuApi:
                 )
             query_params["offset"] = offset
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/users/{user_id}/scores/{Type}",
-            headers=self.base_headers,
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=list[Score], obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/users/{user_id}/scores/{Type}",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-user-beatmaps
     @verify_auth
-    def user_beatmaps(
+    def __base_UserBeatmaps(
         self,
+        headers,
         user_id: int,
         Type: BeatmapType | str,
         limit: int = None,
         offset: str = None,
-        **kwargs,
     ) -> list[BeatmapPlaycount] | list[Beatmapset]:
         query_params = {}
 
@@ -481,21 +506,17 @@ class OsuApi:
                 )
             query_params["offset"] = offset
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/users/{user_id}/beatmapsets/{Type}",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        if Type == BeatmapType.MOST_PLAYED.value:
-            return parse_obj_as(type_=list[BeatmapPlaycount], obj=response.json())
-        return parse_obj_as(type_=list[Beatmapset], obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/users/{user_id}/beatmapsets/{Type}",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-user-recent-activity
     @verify_auth
-    def user_recent_activity(
-        self, user_id: int, limit: int = None, offset: str = None, **kwargs
+    def __base_UserRecentActivity(
+        self, headers, user_id: int, limit: int = None, offset: str = None
     ) -> list[Event]:
         query_params = {}
 
@@ -518,19 +539,21 @@ class OsuApi:
                 )
             query_params["offset"] = offset
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/users/{user_id}/recent_activity",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=list[Event], obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/users/{user_id}/recent_activity",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-user
     @verify_auth
-    def user(
-        self, username: int | str, mode: GameMode | str = "", key: str = "", **kwargs
+    def __base_User(
+        self,
+        headers,
+        username: int | str,
+        mode: GameMode | str = "",
+        key: str = "",
     ) -> User:
         query_params = {}
 
@@ -549,23 +572,25 @@ class OsuApi:
             if isinstance(mode, GameMode):
                 mode = mode.value
 
-        if key != "":
+        if not re.match(pattern=r"^\s*$", string=str(key)):
             if key not in ["id", "username"]:
-                raise ValueError("key can only be 'id' or 'username'")
+                raise ValueError("param<key> can only be 'id' or 'username'")
             query_params["key"] = key
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/users/{username}/{mode}",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=User, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/users/{username}/{mode}",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-users
     @verify_auth
-    def users(self, user_ids: list[int], **kwargs) -> Users:
+    def __base_Users(
+        self,
+        headers,
+        user_ids: list[int],
+    ) -> Users:
         query_params = {}
 
         if not isinstance(user_ids, list):
@@ -580,25 +605,25 @@ class OsuApi:
             )
         query_params["ids[]"] = user_ids
 
-        response = self.Client.get(
-            url=self.BASE_URL + "/users", headers=kwargs["headers"], params=query_params
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Users, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + "/users",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-ranking
     @verify_auth
-    def ranking(
+    def __base_Ranking(
         self,
+        headers,
         mode: GameMode | str,
         Type: str,
-        filter: str = "all",
+        Filter: str = "all",
         country: int = None,
         cursor: int = None,
         spotlight_id: int = None,
         variant: str = None,
-        **kwargs,
     ) -> Rankings:
         query_params = {}
 
@@ -616,9 +641,9 @@ class OsuApi:
         if isinstance(Type, RankingType):
             Type = Type.value
 
-        if filter not in ["all", "friends"]:
-            raise ValueError("filter must be 'all' or 'friends'")
-        query_params["filter"] = filter
+        if Filter not in ["all", "friends"]:
+            raise ValueError("param<Filter> must be 'all' or 'friends'")
+        query_params["filter"] = Filter
 
         if cursor:
             if not isinstance(cursor, int):
@@ -626,7 +651,7 @@ class OsuApi:
                     param_name="cursor", correct="int", wrong=type(cursor).__name__
                 )
             if cursor < 0:
-                raise ValueError("cursor must be greater that -1")
+                raise ValueError("param<cursor> must be greater that -1")
             query_params["cursor"] = cursor
 
         if country:
@@ -634,43 +659,132 @@ class OsuApi:
                 raise c_TypeError(
                     param_name="country", correct="int", wrong=type(country).__name__
                 )
-            if type != RankingType.PERFORMANCE.value:
+            if Type != RankingType.PERFORMANCE.value:
                 raise ValueError(
-                    "type must be 'performance' in order to set a country code."
+                    "param<Type> must be 'performance' in order to set a country code."
                 )
             query_params["country"] = country
 
         if spotlight_id:
-            if type != RankingType.CHARTS.value:
+            if Type != RankingType.CHARTS.value:
                 raise ValueError(
-                    "type must be 'charts' in order to set a spotlight_id."
+                    "param<Type> must be 'charts' in order to set a spotlight_id."
                 )
             query_params["spotlight"] = spotlight_id
 
         if variant:
             if variant not in ["4k", "7k"]:
                 raise ValueError("variant can only be '4k' or '7k'")
-            if type != RankingType.PERFORMANCE.value:
-                raise ValueError("type must be 'performance' to use variant")
+            if Type != RankingType.PERFORMANCE.value:
+                raise ValueError("param<Type> must be 'performance' to use variant")
             if mode != GameMode.MANIA.value:
-                raise ValueError("mode must be 'mania' to use variant")
+                raise ValueError("param<mode> must be 'mania' to use variant")
             query_params["variant"] = variant
 
-        response = self.Client.get(
-            url=self.BASE_URL + f"/rankings/{mode}/{Type}",
-            headers=kwargs["headers"],
-            params=query_params,
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Rankings, obj=response.json())
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + f"/rankings/{mode}/{Type}",
+            "params": query_params,
+            "headers": headers,
+        }
 
     # ? https://osu.ppy.sh/docs/index.html#get-spotlights
     @verify_auth
-    def spotlights(self, **kwargs) -> Spotlights:
-        response = self.Client.get(
-            url=self.BASE_URL + "/spotlights", headers=kwargs["headers"]
-        )
-        if "error" in (res := response.json()) or "authentication" in res:
-            return None
-        return parse_obj_as(type_=Spotlights, obj=response.json())
+    def __base_Spotlights(
+        self,
+        headers,
+    ) -> Spotlights:
+        return {
+            "method": "GET",
+            "url": self.BASE_URL + "/spotlights",
+            "params": {},
+            "headers": headers,
+        }
+
+    ##########
+    #
+    # Beatmap methods
+    #
+    #########
+    lookup_beatmap = request(Type=Beatmap, func=__base_LookupBeatmap)
+    """
+        Returns losuapi.types.Beatmap object.
+
+        Api documentation: https://osu.ppy.sh/docs/index.html#lookup-beatmap
+
+        parameters:
+            beatmap_id: int - id of Osu! beatmap
+            checksum: str - Osu! beatmap checksum value
+            filename: str - filename to lookup
+        returns:
+            losuapi.types.Beatmap | None
+    """
+    user_beatmap_score = request(Type=BeatmapUserScore, func=__base_UserBeatmapScore)
+    user_beatmap_scores = request(Type=Scores, func=__base_UserBeatmapScores)
+    beatmap_scores = request(Type=BeatmapScores, func=__base_BeatmapScores)
+    beatmaps = request(Type=Beatmaps, func=__base_Beatmaps)
+    beatmap = request(Type=Beatmap, func=__base_Beatmap)
+    beatmap_attributes = request(Type=Attributes, func=__base_BeatmapAttributes)
+
+    ##########
+    #
+    # Async beatmap methods
+    #
+    #########
+    async_lookup_beatmap = async_request(Type=Beatmap, func=__base_LookupBeatmap)
+    async_user_beatmap_score = async_request(
+        Type=BeatmapUserScore, func=__base_UserBeatmapScore
+    )
+    async_user_beatmap_scores = async_request(
+        Type=Scores, func=__base_UserBeatmapScores
+    )
+    async_beatmap_scores = async_request(Type=BeatmapScores, func=__base_BeatmapScores)
+    async_beatmaps = async_request(Type=Beatmaps, func=__base_Beatmaps)
+    async_beatmap = async_request(Type=Beatmap, func=__base_Beatmap)
+    async_beatmap_attributes = async_request(
+        Type=Attributes, func=__base_BeatmapAttributes
+    )
+
+    ##########
+    #
+    # User methods
+    #
+    #########
+    user_kudosu = request(Type=list[KudosuHistory], func=__base_UserKudosu)
+    user_scores = request(Type=list[Score], func=__base_UserScores)
+    user_beatmaps = request(Type=list[BeatmapPlaycount], func=__base_UserBeatmaps)
+    user_recent_activity = request(Type=list[Event], func=__base_UserRecentActivity)
+    user = request(Type=User, func=__base_User)
+    users = request(Type=Users, func=__base_Users)
+
+    ##########
+    #
+    # Async user methods
+    #
+    #########
+    async_user_kudosu = async_request(Type=list[KudosuHistory], func=__base_UserKudosu)
+    async_user_scores = async_request(Type=list[Score], func=__base_UserScores)
+    async_user_beatmaps = async_request(
+        Type=list[BeatmapPlaycount], func=__base_UserBeatmaps
+    )
+    async_user_recent_activity = async_request(
+        Type=list[Event], func=__base_UserRecentActivity
+    )
+    async_user = request(Type=User, func=__base_User)
+    async_users = async_request(Type=Users, func=__base_Users)
+
+    ##########
+    #
+    # Ranking methods
+    #
+    #########
+    ranking = request(Type=Rankings, func=__base_Ranking)
+    spotlights = request(Type=Spotlights, func=__base_Spotlights)
+
+    ##########
+    #
+    # Async ranking methods
+    #
+    #########
+    async_ranking = async_request(Type=Rankings, func=__base_Ranking)
+    async_spotlights = async_request(Type=Spotlights, func=__base_Spotlights)
