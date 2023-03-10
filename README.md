@@ -1,6 +1,13 @@
 # Losuapi
 Python wrapper for the [Osu apiV2](https://osu.ppy.sh/docs/index.html)
 
+```bash
+pip install losuapi
+```
+```bash
+poetry add losuapi
+```
+
 ## Important
 
 Development in progress
