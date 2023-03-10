@@ -37,8 +37,6 @@ class BaseOsuApi:
     TOKEN_URL = "https://osu.ppy.sh/oauth/token"
 
     def __init__(self, client_id: int, client_secret: str) -> None:
-        # self.Client = httpx.Client(timeout=None)
-        # self.AsyncClient = httpx.AsyncClient(timeout=None)
         self.__client_id = client_id
         self.__client_secret = client_secret
         self.authorization = self.__new_auth()
