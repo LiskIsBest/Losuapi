@@ -1,8 +1,6 @@
 from functools import wraps
-from typing import Type, TypeVar
 import re
 import httpx
-from pydantic import parse_obj_as
 from .types import (
     Beatmap,
     Beatmaps,
@@ -27,8 +25,6 @@ from .types import (
     Spotlights,
 )
 from .utility import c_TypeError
-
-T = TypeVar("T")
 
 
 class BaseOsuApi:
