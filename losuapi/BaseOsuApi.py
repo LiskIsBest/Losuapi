@@ -1,5 +1,6 @@
 from functools import wraps
 import re
+import time
 import httpx
 from .types import (
     Beatmap,
@@ -37,9 +38,10 @@ class BaseOsuApi:
     TOKEN_URL = "https://osu.ppy.sh/oauth/token"
 
     def __init__(self, client_id: int, client_secret: str) -> None:
-        self.__client_id = client_id
-        self.__client_secret = client_secret
-        self.authorization = self.__new_auth()
+        self.__client_id: int = client_id
+        self.__client_secret: str = client_secret
+        self.authorization, self.expires_in = self.__new_auth()
+        self.expired_time: int = time.time() + self.expires_in
 
     def __new_auth(self):
         """
@@ -62,7 +64,7 @@ class BaseOsuApi:
         ).json()
         if "error" in response:
             raise ConnectionError(f'error: {response["error"]}')
-        return response["token_type"] + " " + response["access_token"]
+        return (response["token_type"] + " " + response["access_token"], response["expires_in"])
 
     def verify_auth(func):
         """
@@ -72,7 +74,9 @@ class BaseOsuApi:
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self.authorization:
-                self.authorization = self.__new_auth()
+                self.authorization, self.expires_in = self.__new_auth()
+            if time.time() >= self.expired_time:
+                self.authorization, self.expires_in = self.__new_auth()
             headers = self.base_headers
             headers["Authorization"] = self.authorization
             return func(self, headers, *args, **kwargs)
