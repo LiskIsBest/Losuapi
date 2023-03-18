@@ -285,7 +285,7 @@ class AsyncOsuApi(BaseOsuApi):
         Type: BeatmapType | str,
         limit: int = None,
         offset: int = None,
-    ) -> list[BeatmapPlaycount]:
+    ) -> list[BeatmapPlaycount] | list[Beatmapset]:
         """
         Returns the beatmaps of a specified user.
 
@@ -298,7 +298,7 @@ class AsyncOsuApi(BaseOsuApi):
             - limit: int | None - Maximum numbers of results.
             - offset: int | None - Result offset for pagination.
 
-        Returns: list[losuapi.types.BeatmapPlaycount]
+        Returns: list[losuapi.types.BeatmapPlaycount] | list[losuapi.types.BeatmapPlaycount]
 
         Returns None if http request errors out.
         """
